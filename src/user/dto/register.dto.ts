@@ -3,4 +3,5 @@ export class RegisterDto {
   readonly password: string;
   readonly userName: string;
   readonly gender: string;
+  readonly dateOfBirth :string
 }

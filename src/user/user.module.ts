@@ -11,5 +11,6 @@ import { from } from 'rxjs';
   ],
   controllers: [UserController],
   providers: [UserService],
+  exports : [UserService],
 })
 export class UserModule {}
