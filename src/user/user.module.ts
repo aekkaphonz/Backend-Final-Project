@@ -11,6 +11,6 @@ import { from } from 'rxjs';
   ],
   controllers: [UserController],
   providers: [UserService],
-  exports : [UserService],
+  exports : [UserService,MongooseModule],
 })
 export class UserModule {}
