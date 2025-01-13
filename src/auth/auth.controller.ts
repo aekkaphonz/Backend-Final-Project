@@ -9,7 +9,7 @@ import { Response } from 'express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @UseGuards(LocalAuthGuard)
-  @Post('login')
+  @Post('login') //ตอนยิงใช้ URL path http://localhost:3001/auth/login method Post
   async login(@Request() req, @Res({ passthrough: true }) res) {
     const { accessToken } = await this.authService.login(req.user);
     res.cookie('access_token', accessToken, {
@@ -18,13 +18,13 @@ export class AuthController {
     return { message: 'Login successful' };
   }
 
-  @Get('google')
+  @Get('google') //ตอนยิงใช้ URL path http://localhost:3001/auth/google method Get 
   @UseGuards(GoogleAuthGuard)
   async googleAuth(@Request() req) {
 
   }
 
-  @Get('google/callback')
+  @Get('google/callback') //ตอนยิงใช้ URL path http://localhost:3001/auth/google/callback method Get 
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Request() req, @Res() res: Response) {
     const { accessToken } = await this.authService.googleLogin(req);
@@ -34,7 +34,7 @@ export class AuthController {
     res.redirect('/user/profile');
   }
 
-  @Get('logout')
+  @Get('logout') //ตอนยิงใช้ URL path http://localhost:3001/auth/logout method Get 
   async logout(@Request() req, @Res() res: Response) {
     res.clearCookie('jwt token', {
       httpOnly: true,

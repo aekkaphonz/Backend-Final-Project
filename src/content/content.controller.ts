@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 
@@ -18,17 +19,13 @@ import { UpdateContentDto } from './dto/update-content.dto';
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
 
-  @Get()
+  @Get() //ตอนยิงใช้ URL path http://localhost:3001/contents
   getAllContent() {
     return this.contentService.findAll();
   }
 
-  @Post('/new_content')
-  create(@Body() contentDto: CreateContentDto) {
-    return this.contentService.create(contentDto);
-  }
 
-  @Get(':id')
+  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Get
   getContent(
     @Param('id')
     id: string,
@@ -36,21 +33,38 @@ export class ContentController {
     return this.contentService.findById(id);
   }
 
-  @Put(':id')
+  @Put(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Put
   async updateContent(
     @Param('id')
     id: string,
     @Body()
-    content : UpdateContentDto
+    content: UpdateContentDto,
   ): Promise<Content> {
-    return this.contentService.updateById(id,content);
+    return this.contentService.updateById(id, content);
   }
 
-  @Delete(':id')
+  @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Delete
   async deleteContent(
     @Param('id')
     id: string,
   ): Promise<Content> {
     return this.contentService.deleteById(id);
+  }
+
+  @Post("/createContent") //ตอนยิงใช้ URL path http://localhost:3001/contents/createContent
+  async createContent(
+    @Body('userId') userId: string,
+    @Body('title') title: string,
+    @Body('detail') detail: string,
+    @Body('description') description: string,
+    @Body('image') image: string,
+  ) {
+    return this.contentService.createContent(
+      userId,
+      title,
+      detail,
+      description,
+      image,
+    );
   }
 }

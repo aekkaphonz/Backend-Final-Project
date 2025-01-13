@@ -1,15 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export type ContentDocument = Content & Document;
 
 @Schema({ timestamps: true })
 export class Content {
-  @Prop({ required: true })
-  user_name: string;
-
-  @Prop()
-  post_id: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }) 
+  userId: string;
 
   @Prop({ required: true })
   title: string;
@@ -20,7 +17,7 @@ export class Content {
   @Prop()
   description: string;
 
-  @Prop()
+  @Prop({ required: true  })
   image: string;
 }
 

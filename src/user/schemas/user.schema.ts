@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document ,HydratedDocument} from 'mongoose';
+
 import * as bcrypt from 'bcrypt';
+import { Content } from 'src/content/schemas/content.schema';
 
 export type UserDocument = User & Document;
 
@@ -27,7 +29,8 @@ export class User {
 
   @Prop()
    googleId: string;
-
+   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Content' }] }) 
+   content: Content[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

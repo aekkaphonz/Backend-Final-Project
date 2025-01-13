@@ -1,6 +1,11 @@
+import { IsNotEmpty, IsString } from "class-validator";
+import { Types } from "mongoose";
+
 export class CreateContentDto {
-    readonly user_name: string;
-    readonly post_id: string;
+
+     
+        readonly   userId?: Types.ObjectId;
+ 
     readonly title: string;
     readonly detail: string;
     readonly description: string;
