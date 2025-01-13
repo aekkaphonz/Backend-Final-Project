@@ -10,18 +10,19 @@ export class User {
   email: string;
 
   // @Prop({ required: true })
-  // password: string;
+  // password: string; เก็บไว้เขียน validate
+
   @Prop()
    password: string;
 
- 
-   @Prop({ required: false })  // ทำให้เป็น optional
+  // ทำให้เป็น optional
+   @Prop({ required: false })  
    userName: string;
  
-   @Prop({ required: false })  // ทำให้เป็น optional
+   @Prop({ required: false })  
    gender: string;
  
-   @Prop({ required: false })  // ทำให้เป็น optional
+   @Prop({ required: false })  
    dateOfBirth: string;
 
   @Prop()

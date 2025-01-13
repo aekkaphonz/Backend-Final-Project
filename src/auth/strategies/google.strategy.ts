@@ -2,6 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -34,9 +35,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 }
 
-// เพิ่ม auth/google-auth.guard.ts เพื่อให้เรียกใช้งานใน Controller ได้
 
-import { AuthGuard } from '@nestjs/passport';
+
 
 @Injectable()
 export class GoogleAuthGuard extends AuthGuard('google') {}

@@ -7,10 +7,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
+import { ContentModule } from './content/content.module';
 
 @Module({
   imports: [
-    // เพิ่มไว้สำหรับการอ่าน config ผ่าน .env
+    // อ่าน config ผ่าน .env
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -23,6 +24,7 @@ import { UserService } from './user/user.service';
     }),
     AuthModule,
     UserModule,
+    ContentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

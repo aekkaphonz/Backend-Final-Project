@@ -32,7 +32,7 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
     };
   }
-  // เพิ่ม google Login เข้ามา
+  //  google 
   async googleLogin(req): Promise<any> {
     if (!req.user) {
       throw new Error('Google login failed: No user information received.');
@@ -44,9 +44,9 @@ export class AuthService {
     if (!user) {
       user = new this.userModel({
         email,
-        userName: name || 'Google User',  // ตั้งชื่อเริ่มต้นให้ผู้ใช้
-        gender: null,                     // ไม่มีข้อมูลจาก Google
-        dateOfBirth: null,                // ไม่มีข้อมูลจาก Google
+        userName: name || 'Google User', 
+        gender: null,                     
+        dateOfBirth: null,               
         googleId,
       });
       await user.save();
