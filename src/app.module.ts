@@ -16,7 +16,7 @@ import { ContentModule } from './content/content.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    // จะอ่านจาก dotenv หรือ fix code ก็ได้ (สำหรับตัวอย่างนี้)
+    // จะอ่านจาก dotenv หรือ fix code ก็ได้ 
     MongooseModule.forRoot(`mongodb://localhost:27017`, {
       user: 'final',
       pass: 'project',
