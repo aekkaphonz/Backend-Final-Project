@@ -17,7 +17,7 @@ export class User {
   @Prop()
    password: string;
 
-  // ทำให้เป็น optional
+ 
    @Prop({ required: false })  
    userName: string;
  

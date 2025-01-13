@@ -37,7 +37,7 @@ export class ContentService {
     if (!content) {
       throw new NotFoundException('Content not found');
     }
-    // const contentObject = content.toObject(); 
+    // const contentObject = content.toObject();  เผื่อต้องใช้
     // delete contentObject.userId;
     return content; 
   }
