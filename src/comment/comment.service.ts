@@ -11,7 +11,6 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 
-
 @Injectable()
 export class CommentService {
   constructor(
@@ -43,18 +42,12 @@ export class CommentService {
     id: string,
     updateCommentDto: UpdateCommentDto,
   ): Promise<Comment> {
-    if (updateCommentDto.postId) {
-      updateCommentDto.postId = new Types.ObjectId(updateCommentDto.postId);
-    }
-
     const updatedComment = await this.commentModel
-      .findByIdAndUpdate(id, updateCommentDto, {
-        new: true,
-      })
+      .findByIdAndUpdate(id, updateCommentDto, { new: true })
       .exec();
 
     if (!updatedComment) {
-      throw new Error('Comment not found');
+      throw new NotFoundException(`Comment with ID ${id} not found`);
     }
 
     return updatedComment;

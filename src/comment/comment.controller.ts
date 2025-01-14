@@ -43,12 +43,12 @@ export class CommentController {
   async deleteComment(
     @Param('id')
     id: string,
-  ): Promise<Comment> {
+  ): Promise<{message:string}> {
     const deletedComment = await this.commentService.deleteById(id);
     if (!deletedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
-    return deletedComment;
+    return  { message: 'delete successful' }; 
   }
 
   @Get()
@@ -62,15 +62,17 @@ export class CommentController {
   }
 
   
-    @Put(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Put
-    async updateContent(
-      @Param('id')
-      id: string,
-      @Body()
-      content: UpdateCommentDto,
-    ): Promise<Comment> {
-      return this.commentService.updateById(id, content);
+  @Put(':id') 
+  async updateContent(
+    @Param('id') id: string,
+    @Body() content: UpdateCommentDto,
+  ): Promise<{ message: string }> {
+    const updated = await this.commentService.updateById(id, content);
+    if (!updated) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
     }
+    return { message: 'Update successful' };
+  }
   
   
 }
