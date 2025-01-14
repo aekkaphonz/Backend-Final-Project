@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
@@ -23,19 +28,33 @@ export class UserService {
   }
 
   async getOneUser(userId: string): Promise<User> {
-    const user = await this.userModel
-      .findById(userId)
-      .populate('content') 
-      .exec();
-  
-    console.log('User with Contents:', user);
-  
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found.`);
+    try {
+      const user = await this.userModel
+        .findById(userId)
+        .populate({
+          path: 'content',
+          populate: {
+            path: 'comments',
+            model: 'PostComment',
+            populate: {
+              path: 'userId',
+              select: 'userName',
+            },
+          },
+        })
+        .exec();
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found.`);
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Error fetching:', error.message);
+      throw new InternalServerErrorException('Failed to fetch user data.');
     }
-  
-    return user;
   }
+
   async findByEmail(email: string): Promise<UserDocument> {
     return this.userModel.findOne({ email }).exec();
   }

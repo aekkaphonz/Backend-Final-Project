@@ -39,7 +39,7 @@ export class ContentService {
     }
     // const contentObject = content.toObject();  เผื่อต้องใช้
     // delete contentObject.userId;
-    return content; 
+    return content;
   }
   async updateById(
     id: string,
@@ -66,8 +66,25 @@ export class ContentService {
     return await this.contentModel.findByIdAndDelete(id);
   }
 
-  async getUserWithContents(userId: string) {
-    return this.userModel.findById(userId).populate('content').exec();
+ 
+
+  async getContentWithComments(contentId: string) {
+    const contentWithComments = await this.contentModel
+      .findById(contentId)
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'userId',
+          select: 'userName',
+        },
+      })
+      .exec();
+
+    if (!contentWithComments) {
+      throw new NotFoundException(`Content with ID ${contentId} not found`);
+    }
+
+    return contentWithComments;
   }
 
   async createContent(

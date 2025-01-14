@@ -7,12 +7,10 @@ import {
   Param,
   Delete,
   Put,
-  Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
-
 import { Content } from './schemas/content.schema';
-import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 
 @Controller('contents')
@@ -22,15 +20,6 @@ export class ContentController {
   @Get() //ตอนยิงใช้ URL path http://localhost:3001/contents
   getAllContent() {
     return this.contentService.findAll();
-  }
-
-
-  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Get
-  getContent(
-    @Param('id')
-    id: string,
-  ): Promise<Content> {
-    return this.contentService.findById(id);
   }
 
   @Put(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Put
@@ -43,6 +32,15 @@ export class ContentController {
     return this.contentService.updateById(id, content);
   }
 
+  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Get
+  async getContent(@Param('id') contentId: string) {
+    const content = await this.contentService.getContentWithComments(contentId);
+    if (!content) {
+      throw new NotFoundException(`Content with ID ${contentId} not found`);
+    }
+    return content;
+  }
+
   @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Delete
   async deleteContent(
     @Param('id')
@@ -51,7 +49,7 @@ export class ContentController {
     return this.contentService.deleteById(id);
   }
 
-  @Post("/createContent") //ตอนยิงใช้ URL path http://localhost:3001/contents/createContent
+  @Post('/createContent') //ตอนยิงใช้ URL path http://localhost:3001/contents/createContent
   async createContent(
     @Body('userId') userId: string,
     @Body('title') title: string,
