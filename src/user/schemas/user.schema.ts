@@ -23,7 +23,7 @@ export class User {
  
    @Prop({ required: false })  
    gender: string;
- 
+
    @Prop({ required: false })  
    dateOfBirth: string;
 
