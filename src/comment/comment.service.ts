@@ -11,6 +11,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 
+
 @Injectable()
 export class CommentService {
   constructor(
@@ -21,11 +22,11 @@ export class CommentService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  findAll(): Promise<Comment[]> {
+  findAll(): Promise<PostComment[]> {
     return this.commentModel.find().exec();
   }
 
-  async findById(id: string): Promise<Comment> {
+  async findById(id: string): Promise<PostComment> {
     const isValidId = mongoose.isValidObjectId(id);
     if (!isValidId) {
       throw new BadRequestException('please enter correct id.');
@@ -41,11 +42,12 @@ export class CommentService {
   async updateById(
     id: string,
     updateCommentDto: UpdateCommentDto,
-  ): Promise<Comment> {
+  ): Promise<PostComment> {
     const updatedComment = await this.commentModel
       .findByIdAndUpdate(id, updateCommentDto, { new: true })
       .exec();
 
+  
     if (!updatedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
@@ -61,7 +63,7 @@ export class CommentService {
     postId: string,
     userId: string,
     comment: string,
-  ): Promise<Comment> {
+  ): Promise<PostComment> {
     const newComment = new this.commentModel({
       postId,
       userId,

@@ -5,9 +5,10 @@ export class CreateCommentDto {
     
   readonly userId?: Types.ObjectId;
   readonly postId?: Types.ObjectId;
-  
+
   @IsNotEmpty()
   @IsString()
+  
   readonly comment: string;
 
 }

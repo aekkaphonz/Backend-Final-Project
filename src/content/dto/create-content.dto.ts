@@ -13,9 +13,9 @@ export class CreateContentDto {
   @IsNotEmpty()
   readonly detail: string;
 
-  @IsString()
+
   readonly description: string;
 
-  @IsString()
+ 
   readonly image: string;
 }
