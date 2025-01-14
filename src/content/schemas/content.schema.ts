@@ -19,6 +19,9 @@ export class Content {
 
   @Prop({ required: true  })
   image: string;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
+  comments: string[]; 
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);

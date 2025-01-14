@@ -7,8 +7,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
-import mongoose, { Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
+import { CommentDocument, PostComment } from 'src/comment/schemas/comment.schema';
 
 @Injectable()
 export class ContentService {
@@ -16,6 +17,7 @@ export class ContentService {
     @InjectModel(Content.name)
     private readonly contentModel: Model<ContentDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(PostComment.name) private readonly commentModel: Model<CommentDocument>,
   ) {}
 
   async create(contentDto: CreateContentDto): Promise<Content> {
@@ -27,20 +29,21 @@ export class ContentService {
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
-  async findById(id: string): Promise<Content> {
-    const isValidId = mongoose.isValidObjectId(id);
-    if (!isValidId) {
-      throw new BadRequestException('please enter correct id.');
-    }
+  //  เผื่อต้องใช้
+  // async findById(id: string): Promise<Content> {
+  //   const isValidId = mongoose.isValidObjectId(id);
+  //   if (!isValidId) {
+  //     throw new BadRequestException('please enter correct id.');
+  //   }
 
-    const content = await this.contentModel.findById(id).exec();
-    if (!content) {
-      throw new NotFoundException('Content not found');
-    }
-    // const contentObject = content.toObject();  เผื่อต้องใช้
-    // delete contentObject.userId;
-    return content; 
-  }
+  //   const content = await this.contentModel.findById(id).exec();
+  //   if (!content) {
+  //     throw new NotFoundException('Content not found');
+  //   }
+  //    const contentObject = content.toObject();
+  //    delete contentObject.userId;
+  //   return content;
+  // }
   async updateById(
     id: string,
     updateContentDto: UpdateContentDto,
@@ -66,8 +69,26 @@ export class ContentService {
     return await this.contentModel.findByIdAndDelete(id);
   }
 
-  async getUserWithContents(userId: string) {
-    return this.userModel.findById(userId).populate('content').exec();
+ 
+
+  async getContentWithComments(contentId: string) {
+    const contentWithComments = await this.contentModel
+      .findById(contentId)
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'userId',
+          select: 'userName',
+        },
+        model: this.commentModel,
+      })
+      .exec();
+  
+    if (!contentWithComments) {
+      throw new NotFoundException(`Content with ID ${contentId} not found`);
+    }
+  
+    return contentWithComments;
   }
 
   async createContent(

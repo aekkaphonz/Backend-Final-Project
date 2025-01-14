@@ -6,6 +6,7 @@ import {
   UseGuards,
   Request,
   Param,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -37,4 +38,6 @@ export class UserController {
   async getOneUser(@Param('id') userId: string) {
     return this.userService.getOneUser(userId);
   }
+
+  
 }

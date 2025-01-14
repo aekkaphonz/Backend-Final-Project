@@ -7,7 +7,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ContentModule } from './content/content.module';
+<<<<<<< HEAD
 import { PostsModule } from './posts/posts.module';
+=======
+import { CommentModule } from './comment/comment.module';
+>>>>>>> 8c9309bff53e00f38c7bc1e80f84ccbb19eef52f
 
 @Module({
   imports: [
@@ -24,7 +28,11 @@ import { PostsModule } from './posts/posts.module';
     AuthModule,
     UserModule,
     ContentModule,
+<<<<<<< HEAD
     PostsModule,
+=======
+    CommentModule,
+>>>>>>> 8c9309bff53e00f38c7bc1e80f84ccbb19eef52f
   ],
   controllers: [AppController, ],
   providers: [AppService, ],

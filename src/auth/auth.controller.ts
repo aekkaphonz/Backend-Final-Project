@@ -28,7 +28,7 @@ export class AuthController {
     res.cookie('access_token', accessToken, {
       httpOnly: true,
     });
-    res.redirect('http://localhost:3000/home/highlights');
+    res.redirect('http://localhost:3001/user/profile');
   }
 
   @Get('logout') //ตอนยิงใช้ URL path http://localhost:3001/auth/logout method Get
