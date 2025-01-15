@@ -8,10 +8,12 @@ import {
   Delete,
   Put,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
 import { UpdateContentDto } from './dto/update-content.dto';
+import { Types } from 'mongoose';
 
 @Controller('contents')
 export class ContentController {
@@ -32,7 +34,7 @@ export class ContentController {
     return this.contentService.updateById(id, content);
   }
 
-  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Get
+  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/detail:id method Get
   async getContent(@Param('id') contentId: string) {
     const content = await this.contentService.getContentWithComments(contentId);
     if (!content) {
@@ -65,4 +67,9 @@ export class ContentController {
       image,
     );
   }
+
+  // @Get(':id')
+  // async getContentById(@Param('id') id: string): Promise<Content> {
+  //   return this.contentService.findById(id);
+  // }
 }

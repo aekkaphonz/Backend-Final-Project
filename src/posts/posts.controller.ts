@@ -2,6 +2,8 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
+  Put,
   Param,
   Body,
   NotFoundException,
@@ -31,4 +33,29 @@ export class PostsController {
     }
     return post;
   }
+
+  @Put(':id') // เพิ่ม endpoint สำหรับการอัปเดตข้อมูล
+  async updatePost(@Param('id') id: string, @Body() updateData: Partial<CreatePostDto>) {
+    const updatedPost = await this.postsService.update(id, updateData);
+    if (!updatedPost) {
+      throw new NotFoundException('Post not found');
+    }
+    return updatedPost;
+  }
+
+  @Delete(':id') // เพิ่มการลบข้อมูล
+  async deletePost(@Param('id') id: string) {
+    const result = await this.postsService.delete(id);
+    if (!result) {
+      throw new NotFoundException('Post not found');
+    }
+    return { message: 'Post deleted successfully' };
+  }
+
+  @Get('count/:authorId')
+  async countPostsByAuthor(@Param('authorId') authorId: string) {
+    const count = await this.postsService.countPostsByAuthor(authorId);
+    return { count };
+  }
+
 }

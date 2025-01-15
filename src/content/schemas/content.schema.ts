@@ -5,8 +5,8 @@ export type ContentDocument = Content & Document;
 
 @Schema({ timestamps: true })
 export class Content {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }) 
-  userId: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }) 
+    userId: string;
 
   @Prop({ required: true })
   title: string;
