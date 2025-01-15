@@ -24,7 +24,7 @@ import { PostsModule } from './posts/posts.module';
     UserModule,
     ContentModule,
     CommentModule,
-    PostsModule, // เพิ่ม PostsModule
+    PostsModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

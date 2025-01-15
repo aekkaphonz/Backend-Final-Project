@@ -77,7 +77,6 @@ export class CommentService {
       { $push: { comments: savedComment._id } },
       { new: true },
     );
-    console.log('Updated Content:', updatedContent);
     if (!updatedContent) {
       throw new NotFoundException(`Content with ID ${postId} not found`);
     }
@@ -97,12 +96,10 @@ export class CommentService {
     return savedComment;
   }
   async getCommentsInContent(contentId: string) {
-    console.log('Fetching comments for Content ID:', contentId);
     const comments = await this.commentModel
       .find({ postId: contentId })
       .populate('userId', 'userName')
       .exec();
-    console.log('Comments:', comments);
     return comments;
   }
 }
