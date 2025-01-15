@@ -1,4 +1,4 @@
-# Intern Backend Nest.js
+# Blogger Dee Dee BE
 
 
 ## การติดตั้ง
@@ -17,6 +17,8 @@ cd Backend-Final-Project
 ```bash
 npm install
 ```
+4. ติดตั้ง Docker Desktop [Click](https://www.docker.com/get-started/)
+
 ## การรันแอปพลิเคชัน
 1.เริ่มต้นเซิร์ฟเวอร์ด้วยคำสั่ง:
 ```bash
@@ -43,5 +45,18 @@ npm run start:prod
 
 ## Sitemap
 
+- RESTful API endpoints
+  - ผู้ใช้งาน
+    - สร้าง / ค้นหา / แก้ไข
+  - บทความ
+    - สร้างบทความ
+    - ดูบทความทั้งหมด
+    - ดูบทความเดี่ยว
+    - แก้ไขบทความ 
+    - ลบบทความ
 
-  
+  - ความคิดเห็น
+    - สร้างความคิดเห็น
+    - แสดงความคิดเห็นทั้งหมด / เดี่ยว
+    - แก้ไขความคิดเห็น
+    - ลบความคิดเห็น
