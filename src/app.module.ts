@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ContentModule } from './content/content.module';
-<<<<<<< HEAD
-import { PostsModule } from './posts/posts.module';
-=======
 import { CommentModule } from './comment/comment.module';
->>>>>>> 8c9309bff53e00f38c7bc1e80f84ccbb19eef52f
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
-    // อ่าน config ผ่าน .env
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -28,14 +23,10 @@ import { CommentModule } from './comment/comment.module';
     AuthModule,
     UserModule,
     ContentModule,
-<<<<<<< HEAD
-    PostsModule,
-=======
     CommentModule,
->>>>>>> 8c9309bff53e00f38c7bc1e80f84ccbb19eef52f
+    PostsModule, // เพิ่ม PostsModule
   ],
-  controllers: [AppController, ],
-  providers: [AppService, ],
-  
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
