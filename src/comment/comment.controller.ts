@@ -11,18 +11,19 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { AddCommentDto } from './dto/add-comment.dto';
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('/addComment') //ตอนยิงใช้ URL path http://localhost:3001/comments/addComment
-  async addComment(
-    @Body('postId') postId: string,
-    @Body('userId') userId: string,
-    @Body('comment') comment: string,
-  ) {
-    return this.commentService.addComment(postId, userId, comment);
+  async addComment(@Body() addCommentDto: AddCommentDto) {
+    return this.commentService.addComment(
+      addCommentDto.postId,
+      addCommentDto.userId,
+      addCommentDto.comment,
+    );
   }
 
   @Get('content/:id') //ตอนยิงใช้ URL path http://localhost:3001/comments/content/<id> id ของ post หรือ content นั้นไว้ดู comment ทั้งหมดใน post
@@ -61,18 +62,13 @@ export class CommentController {
     return this.commentService.findById(id);
   }
 
-  
-  @Put(':id') 
-  async updateContent(
+  //update
+  @Put(':id')
+  async updateComment(
     @Param('id') id: string,
-    @Body() content: UpdateCommentDto,
-  ): Promise<{ message: string }> {
-    const updated = await this.commentService.updateById(id, content);
-    if (!updated) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
-    }
-    return { message: 'Update successful' };
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    return this.commentService.updateById(id, updateCommentDto);
   }
-  
   
 }
