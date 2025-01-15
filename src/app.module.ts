@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,10 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ContentModule } from './content/content.module';
 import { CommentModule } from './comment/comment.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
-    // อ่าน config ผ่าน .env
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -25,9 +24,9 @@ import { CommentModule } from './comment/comment.module';
     UserModule,
     ContentModule,
     CommentModule,
+    PostsModule, 
   ],
-  controllers: [AppController, ],
-  providers: [AppService, ],
-  
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
