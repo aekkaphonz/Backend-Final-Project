@@ -20,4 +20,18 @@ export class PostsService {
   async findOne(id: string): Promise<Post> {
     return this.postModel.findById(id).exec();
   }
+
+  async update(id: string, updateData: Partial<CreatePostDto>): Promise<Post> {
+    return this.postModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await this.postModel.deleteOne({ _id: id }).exec();
+    return result.deletedCount > 0; // true หากลบสำเร็จ
+  }
+
+  async countPostsByAuthor(authorId: string): Promise<number> {
+    return this.postModel.countDocuments({ authorId }).exec();
+  }
+  
 }
