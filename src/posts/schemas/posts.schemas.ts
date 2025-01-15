@@ -17,6 +17,9 @@ export class Post extends Document {
 
   @Prop()
   images: string[];
+
+  @Prop({ required: true })
+  userId: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

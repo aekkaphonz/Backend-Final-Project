@@ -8,10 +8,10 @@ import { CreatePostDto } from './dto/create-post.dto';
 export class PostsService {
   constructor(@InjectModel(Post.name) private readonly postModel: Model<Post>) {}
 
-  async create(createPostDto: CreatePostDto): Promise<Post> {
+  async create(createPostDto: Partial<Post>): Promise<Post> {
     const newPost = new this.postModel(createPostDto);
     return newPost.save();
-  }
+  }  
 
   async findAll(): Promise<Post[]> {
     return this.postModel.find().exec();
@@ -31,7 +31,7 @@ export class PostsService {
   }
 
   async countPostsByAuthor(authorId: string): Promise<number> {
-    return this.postModel.countDocuments({ authorId }).exec();
-  }
+    return this.postModel.countDocuments({ userId: authorId }).exec();
+  }  
   
 }
