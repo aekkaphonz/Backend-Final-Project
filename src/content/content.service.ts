@@ -7,9 +7,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
-import { CommentDocument, PostComment } from 'src/comment/schemas/comment.schema';
+import {
+  CommentDocument,
+  PostComment,
+} from 'src/comment/schemas/comment.schema';
 
 @Injectable()
 export class ContentService {
@@ -17,7 +20,8 @@ export class ContentService {
     @InjectModel(Content.name)
     private readonly contentModel: Model<ContentDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(PostComment.name) private readonly commentModel: Model<CommentDocument>,
+    @InjectModel(PostComment.name)
+    private readonly commentModel: Model<CommentDocument>,
   ) {}
 
   async create(contentDto: CreateContentDto): Promise<Content> {
@@ -81,11 +85,11 @@ export class ContentService {
         model: this.commentModel,
       })
       .exec();
-  
+
     if (!contentWithComments) {
       throw new NotFoundException(`Content with ID ${contentId} not found`);
     }
-  
+
     return contentWithComments;
   }
 
@@ -117,18 +121,16 @@ export class ContentService {
     return savedContent;
   }
 
-  async findById(id: string): Promise<Content> {
+  // async findById(id: string): Promise<Content> {
+  //   const isValidId = Types.ObjectId.isValid(id);
+  //   if (!isValidId) {
+  //     throw new BadRequestException('Please provide a valid ID.');
+  //   }
+  //   const content = await this.contentModel.findById(id).exec();
+  //   if (!content) {
+  //     throw new NotFoundException('Content not found');
+  //   }
 
-    const isValidId = Types.ObjectId.isValid(id);
-    if (!isValidId) {
-      throw new BadRequestException('Please provide a valid ID.');
-    }
-    const content = await this.contentModel.findById(id).exec();
-    if (!content) {
-      throw new NotFoundException('Content not found');
-    }
-  
-    return content;
-  }
-  
+  //   return content;
+  // }
 }
