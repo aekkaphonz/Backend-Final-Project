@@ -18,7 +18,11 @@
     comment: string;
 
   //   @Prop({ default: Date.now })
-  //   createdAt: Date;
+  //   commentCreatedAt: Date;
+
+  //   @Prop({ default: Date.now })
+  //   commentUpdatedAt: Date;
+
 
 
   }
