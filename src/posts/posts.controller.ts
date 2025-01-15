@@ -17,7 +17,7 @@ export class PostsController {
   async createPost(@Body() createPostDto: CreatePostDto) {
     return this.postsService.create(createPostDto);
   }
-
+  
   @Get()
   async getAllPosts() {
     return this.postsService.findAll();
