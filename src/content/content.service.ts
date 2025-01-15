@@ -116,4 +116,19 @@ export class ContentService {
 
     return savedContent;
   }
+
+  async findById(id: string): Promise<Content> {
+
+    const isValidId = Types.ObjectId.isValid(id);
+    if (!isValidId) {
+      throw new BadRequestException('Please provide a valid ID.');
+    }
+    const content = await this.contentModel.findById(id).exec();
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+  
+    return content;
+  }
+  
 }
