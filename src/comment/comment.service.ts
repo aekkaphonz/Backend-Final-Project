@@ -39,6 +39,7 @@ export class CommentService {
     return comment;
   }
 
+  //update
   async updateById(
     id: string,
     updateCommentDto: UpdateCommentDto,
@@ -55,10 +56,12 @@ export class CommentService {
       return updatedComment;
   }
 
+  //delete
   async deleteById(id: string): Promise<Comment> {
     return await this.commentModel.findByIdAndDelete(id);
   }
 
+  //add
   async addComment(
     postId: string,
     userId: string,
