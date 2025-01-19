@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RegisterDto } from './dto/register.dto';
+import { Content } from 'src/content/schemas/content.schema';
 
 @Injectable()
 export class UserService {
@@ -60,5 +61,27 @@ export class UserService {
   }
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
+  }
+
+  async saveImage(
+    email: string,
+    password: string,
+    userName: string,
+    gender: string,
+    dateOfBirth: string,
+    googleId: string,
+    profileImage: string,
+  ): Promise<User> {
+    const newImage = new this.userModel({
+      email,
+      password,
+      userName,
+      gender,
+      dateOfBirth,
+      googleId,
+      profileImage,
+    });
+
+    return await newImage.save();
   }
 }

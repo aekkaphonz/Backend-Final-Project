@@ -16,4 +16,7 @@ export class RegisterDto {
 
   @IsString()
   readonly dateOfBirth: string;
+
+  @IsString()
+  profileImage: string;
 }

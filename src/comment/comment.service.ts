@@ -11,7 +11,6 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 
-
 @Injectable()
 export class CommentService {
   constructor(
@@ -47,7 +46,6 @@ export class CommentService {
       .findByIdAndUpdate(id, updateCommentDto, { new: true })
       .exec();
 
-  
     if (!updatedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
@@ -59,37 +57,34 @@ export class CommentService {
     return await this.commentModel.findByIdAndDelete(id);
   }
 
-async addComment(
-  postId: string,
-  userId: string,
-  comment: string,
-): Promise<PostComment> {
-  // ตรวจสอบความถูกต้องของ ObjectId เท่านั้น
-  if (!mongoose.isValidObjectId(postId)) {
-    throw new BadRequestException('Invalid postId format.');
+  async addComment(
+    postId: string,
+    userId: string,
+    comment: string,
+  ): Promise<PostComment> {
+    if (!mongoose.isValidObjectId(postId)) {
+      throw new BadRequestException('Invalid postId format.');
+    }
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new BadRequestException('Invalid userId format.');
+    }
+
+    const newComment = new this.commentModel({
+      postId,
+      userId,
+      comment,
+    });
+
+    const savedComment = await newComment.save();
+
+    await this.contentModel.findByIdAndUpdate(
+      postId,
+      { $push: { comments: savedComment._id } },
+      { new: true, upsert: true },
+    );
+
+    return savedComment;
   }
-  if (!mongoose.isValidObjectId(userId)) {
-    throw new BadRequestException('Invalid userId format.');
-  }
-
-  // บันทึกคอมเมนต์ใหม่ใน CommentModel
-  const newComment = new this.commentModel({
-    postId,
-    userId,
-    comment,
-  });
-
-  const savedComment = await newComment.save();
-
-  // อัปเดต postId (ไม่ตรวจสอบว่า postId มีอยู่)
-  await this.contentModel.findByIdAndUpdate(
-    postId,
-    { $push: { comments: savedComment._id } },
-    { new: true, upsert: true }, // ใช้ upsert เพื่อสร้างเอกสารใหม่หากไม่มีอยู่
-  );
-
-  return savedComment;
-}
 
   async getCommentsInContent(contentId: string) {
     const comments = await this.commentModel
