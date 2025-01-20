@@ -6,12 +6,12 @@ import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private readonly postModel: Model<Post>) {}
+  constructor(@InjectModel(Post.name) private readonly postModel: Model<Post>) { }
 
   async create(createPostDto: Partial<Post>): Promise<Post> {
     const newPost = new this.postModel(createPostDto);
     return newPost.save();
-  }  
+  }
 
   async findAll(): Promise<Post[]> {
     return this.postModel.find().exec();
@@ -32,6 +32,18 @@ export class PostsService {
 
   async countPostsByAuthor(authorId: string): Promise<number> {
     return this.postModel.countDocuments({ userId: authorId }).exec();
-  }  
-  
+  }
+
+  async incrementView(postId: string): Promise<Post> {
+    return this.postModel
+      .findByIdAndUpdate(postId, { $inc: { viewCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async incrementLike(postId: string): Promise<Post> {
+    return this.postModel
+      .findByIdAndUpdate(postId, { $inc: { likeCount: 1 } }, { new: true })
+      .exec();
+  }
+
 }
