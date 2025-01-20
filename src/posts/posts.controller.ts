@@ -16,8 +16,9 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) { }
 
   @Post()
-  async createPost(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  async createPost(@Body() createPostDto: CreatePostDto, @Body('userId') userId: string) {
+    const postData = { ...createPostDto, userId }; // รวม userId เข้ากับข้อมูลโพสต์
+    return this.postsService.create(postData);
   }
   
   @Get()
@@ -52,10 +53,10 @@ export class PostsController {
     return { message: 'Post deleted successfully' };
   }
 
-  @Get('count/:authorId')
-  async countPostsByAuthor(@Param('authorId') authorId: string) {
-    const count = await this.postsService.countPostsByAuthor(authorId);
-    return { count };
+  @Get('count/:userId')
+  async countPostsByUser(@Param('userId') userId: string) {
+    const count = await this.postsService.countPostsByAuthor(userId);
+    return { postCount: count };
   }
 
 }

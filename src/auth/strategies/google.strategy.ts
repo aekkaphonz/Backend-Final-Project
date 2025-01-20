@@ -22,7 +22,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { id, emails, photos } = profile;
-    const { givenName, familyName } = profile.name || {}; // Add a fallback to an empty object
+    const { givenName, familyName } = profile.name || {};
 
     const user = {
       googleId: id,
@@ -34,9 +34,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done(null, user);
   }
 }
-
-
-
 
 @Injectable()
 export class GoogleAuthGuard extends AuthGuard('google') {}

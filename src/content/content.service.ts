@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
-import mongoose, { Model, Types } from 'mongoose';
+import  { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import {
   CommentDocument,
@@ -33,21 +33,7 @@ export class ContentService {
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
-  //  เผื่อต้องใช้
-  // async findById(id: string): Promise<Content> {
-  //   const isValidId = mongoose.isValidObjectId(id);
-  //   if (!isValidId) {
-  //     throw new BadRequestException('please enter correct id.');
-  //   }
-
-  //   const content = await this.contentModel.findById(id).exec();
-  //   if (!content) {
-  //     throw new NotFoundException('Content not found');
-  //   }
-  //    const contentObject = content.toObject();
-  //    delete contentObject.userId;
-  //   return content;
-  // }
+ 
   async updateById(
     id: string,
     updateContentDto: UpdateContentDto,
@@ -121,16 +107,32 @@ export class ContentService {
     return savedContent;
   }
 
+  async findById(id: string): Promise<Content> {
+    const isValidId = Types.ObjectId.isValid(id);
+    if (!isValidId) {
+      throw new BadRequestException('Please provide a valid ID.');
+    }
+    const content = await this.contentModel.findById(id).exec();
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+
+    return content;
+  }
+
+   //  เผื่อต้องใช้
   // async findById(id: string): Promise<Content> {
-  //   const isValidId = Types.ObjectId.isValid(id);
+  //   const isValidId = mongoose.isValidObjectId(id);
   //   if (!isValidId) {
-  //     throw new BadRequestException('Please provide a valid ID.');
+  //     throw new BadRequestException('please enter correct id.');
   //   }
+
   //   const content = await this.contentModel.findById(id).exec();
   //   if (!content) {
   //     throw new NotFoundException('Content not found');
   //   }
-
+  //    const contentObject = content.toObject();
+  //    delete contentObject.userId;
   //   return content;
   // }
 }
