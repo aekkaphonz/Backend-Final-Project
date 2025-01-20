@@ -10,6 +10,7 @@ import { PostComment, CommentDocument } from './schemas/comment.schema';
 import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -58,31 +59,31 @@ export class CommentService {
   }
 
   async addComment(
-    postId: string,
-    userId: string,
-    comment: string,
+    createCommentDto: CreateCommentDto,
   ): Promise<PostComment> {
+    const { postId, userId, comment } = createCommentDto;
+  
+    
     if (!mongoose.isValidObjectId(postId)) {
       throw new BadRequestException('Invalid postId format.');
     }
     if (!mongoose.isValidObjectId(userId)) {
       throw new BadRequestException('Invalid userId format.');
     }
-
-    const newComment = new this.commentModel({
-      postId,
-      userId,
-      comment,
-    });
-
+  
+  
+    const newComment = new this.commentModel(createCommentDto);
+  
+   
     const savedComment = await newComment.save();
+  
 
     await this.contentModel.findByIdAndUpdate(
       postId,
       { $push: { comments: savedComment._id } },
       { new: true, upsert: true },
     );
-
+  
     return savedComment;
   }
 
