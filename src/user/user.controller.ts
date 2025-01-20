@@ -17,6 +17,8 @@ import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { GetUserDto } from './dto/getuser.dto';
+import * as multer from 'multer';
+
 
 @Controller('user')
 export class UserController {
@@ -46,6 +48,9 @@ export class UserController {
   async getOneUser(@Param('id') userId: string) {
     return this.userService.getOneUser(userId);
   }
+
+
+
 
   // @Post('image')
   // @UseInterceptors(FileInterceptor('file'))

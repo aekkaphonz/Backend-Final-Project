@@ -29,7 +29,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-
 @ApiBearerAuth()
 @ApiTags('Authentication')
 @Controller('auth')
@@ -44,7 +43,7 @@ export class AuthController {
     description: 'User created',
     type: RegisterResponseDto,
   })
-  @ApiBadRequestResponse({ description : 'Bad payload sent'})
+  @ApiBadRequestResponse({ description: 'Bad payload sent' })
   @Post('/register') //ตอนยิงใช้ URL path http://localhost:3001/auth/register method Post
   create(@Body() registerDto: RegisterDto) {
     console.log('Received Data:', registerDto);
@@ -54,8 +53,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Use to login' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req) {
-    return { message: 'Login successful' };
+  async login(@Request() req) {
+    const user = req.session.user;
+    if (!user) {
+      return { message: 'Login failed', error: 'No user session found' };
+    }
+    console.log('User email:', user);
+    return { message: 'Login successful', user };
   }
 
   @ApiOperation({ summary: 'Use to check auth' })
