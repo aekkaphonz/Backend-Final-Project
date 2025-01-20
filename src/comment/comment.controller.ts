@@ -75,5 +75,17 @@ export class CommentController {
   }
 
   
+  @Put(':id') 
+  async updateContent(
+    @Param('id') id: string,
+    @Body() content: UpdateCommentDto,
+  ): Promise<{ message: string }> {
+    const updated = await this.commentService.updateById(id, content);
+    if (!updated) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+    return { message: 'Update successful' };
+  }
+  
   
 }

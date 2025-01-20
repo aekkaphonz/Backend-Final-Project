@@ -2,6 +2,8 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
+  Put,
   Param,
   Body,
   NotFoundException,
@@ -11,11 +13,12 @@ import { CreatePostDto } from './dto/create-post.dto';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService) { }
 
   @Post()
-  async createPost(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  async createPost(@Body() createPostDto: CreatePostDto, @Body('userId') userId: string) {
+    const postData = { ...createPostDto, userId }; // รวม userId เข้ากับข้อมูลโพสต์
+    return this.postsService.create(postData);
   }
 
   @Get()
@@ -31,4 +34,29 @@ export class PostsController {
     }
     return post;
   }
+
+  @Put(':id') // เพิ่ม endpoint สำหรับการอัปเดตข้อมูล
+  async updatePost(@Param('id') id: string, @Body() updateData: Partial<CreatePostDto>) {
+    const updatedPost = await this.postsService.update(id, updateData);
+    if (!updatedPost) {
+      throw new NotFoundException('Post not found');
+    }
+    return updatedPost;
+  }
+
+  @Delete(':id') // เพิ่มการลบข้อมูล
+  async deletePost(@Param('id') id: string) {
+    const result = await this.postsService.delete(id);
+    if (!result) {
+      throw new NotFoundException('Post not found');
+    }
+    return { message: 'Post deleted successfully' };
+  }
+
+  @Get('count/:userId')
+  async countPostsByUser(@Param('userId') userId: string) {
+    const count = await this.postsService.countPostsByAuthor(userId);
+    return { postCount: count };
+  }
+
 }

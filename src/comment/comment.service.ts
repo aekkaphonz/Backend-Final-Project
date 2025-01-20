@@ -61,46 +61,48 @@ export class CommentService {
     return await this.commentModel.findByIdAndDelete(id);
   }
 
-  //add
   async addComment(
     postId: string,
     userId: string,
     comment: string,
   ): Promise<PostComment> {
-    // ตรวจสอบความถูกต้องของ ObjectId เท่านั้น
-    if (!mongoose.isValidObjectId(postId)) {
-      throw new BadRequestException('Invalid postId format.');
-    }
-    if (!mongoose.isValidObjectId(userId)) {
-      throw new BadRequestException('Invalid userId format.');
-    }
-  
-    // บันทึกคอมเมนต์ใหม่ใน CommentModel
     const newComment = new this.commentModel({
       postId,
       userId,
       comment,
     });
-  
+
     const savedComment = await newComment.save();
-  
-    // อัปเดต postId (ไม่ตรวจสอบว่า postId มีอยู่)
-    await this.contentModel.findByIdAndUpdate(
+
+    const updatedContent = await this.contentModel.findByIdAndUpdate(
       postId,
       { $push: { comments: savedComment._id } },
-      { new: true, upsert: true }, // ใช้ upsert เพื่อสร้างเอกสารใหม่หากไม่มีอยู่
+      { new: true },
     );
-  
+    console.log('Updated Content:', updatedContent);
+    if (!updatedContent) {
+      throw new NotFoundException(`Content with ID ${postId} not found`);
+    }
+
+    // เผื่อใช้
+    // const user = await this.userModel.findByIdAndUpdate(
+    //   userId,
+    //   { $push: { comments: savedComment._id } },
+    //   { new: true },
+    // );
+    // console.log('Updated User:', user);
+
+    // if (!user) {
+    //   throw new NotFoundException(`User with ID ${userId} not found`);
+    // }
+
     return savedComment;
   }
-  
   async getCommentsInContent(contentId: string) {
-    console.log('Fetching comments for Content ID:', contentId);
     const comments = await this.commentModel
       .find({ postId: contentId })
       .populate('userId', 'userName')
       .exec();
-    console.log('Comments:', comments);
     return comments;
   }
 }
