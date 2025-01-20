@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { Post as PostSchema } from './schemas/posts.schemas';
 
 @Controller('posts')
 export class PostsController {
@@ -58,5 +59,16 @@ export class PostsController {
     const count = await this.postsService.countPostsByAuthor(userId);
     return { postCount: count };
   }
+
+  @Put(':id/view')
+  async incrementView(@Param('id') id: string): Promise<PostSchema> {
+    return this.postsService.incrementView(id);
+  }
+
+  @Put(':id/like')
+  async incrementLike(@Param('id') id: string): Promise<PostSchema> {
+    return this.postsService.incrementLike(id);
+  }
+
 
 }

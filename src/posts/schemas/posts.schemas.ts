@@ -12,6 +12,15 @@ export class Post extends Document {
   @Prop({ required: true })
   tags: string[];
 
+  @Prop({ default: 0 })
+  viewCount: number;
+
+  @Prop({ default: 0 })
+  likeCount: number;
+
+  @Prop({ default: 0 })
+  commentCount: number;
+
   @Prop({ required: true })
   createdAt: Date;
 
