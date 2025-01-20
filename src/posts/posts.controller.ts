@@ -21,7 +21,7 @@ export class PostsController {
     const postData = { ...createPostDto, userId }; // รวม userId เข้ากับข้อมูลโพสต์
     return this.postsService.create(postData);
   }
-
+  
   @Get()
   async getAllPosts() {
     return this.postsService.findAll();

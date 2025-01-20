@@ -17,4 +17,8 @@ export class UpdateUserDTO {
 
   @IsString()
   dateOfBirth: string;
+
+  
+  @IsString()
+  profileImage: string;
 }
