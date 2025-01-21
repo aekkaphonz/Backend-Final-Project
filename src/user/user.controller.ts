@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UseInterceptors,
   UploadedFile,
+  
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -21,6 +22,13 @@ import { GetUserDto } from './dto/getuser.dto';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMe(@Request() req) {
+    // ข้อมูลผู้ใช้ที่ถูกถอดรหัสจาก JWT
+    return req.user;
+  }
 
 
   @ApiOperation({ summary: 'Get all user' })
