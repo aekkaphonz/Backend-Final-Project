@@ -75,13 +75,5 @@ export class CommentController {
   }
 
   
-  @Put(':id')
-  async updateComment(
-    @Param('id') id: string,
-    @Body() updateCommentDto: UpdateCommentDto,
-  ) {
-    return this.commentService.updateById(id, updateCommentDto);
-  }
-  
   
 }

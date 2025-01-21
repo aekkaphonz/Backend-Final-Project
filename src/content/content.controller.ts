@@ -68,8 +68,5 @@ export class ContentController {
     );
   }
 
-  @Get(':id')
-  async getContentById(@Param('id') id: string): Promise<Content> {
-    return this.contentService.findById(id);
-  }
+  
 }
