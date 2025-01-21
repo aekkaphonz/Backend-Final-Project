@@ -36,7 +36,9 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Request() req) {
-    return { message: 'Login successful' };
+    return { 
+      message: 'Login successful',
+     };
   }
 
   @UseGuards(AuthenticatedGuard)

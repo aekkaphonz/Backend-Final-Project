@@ -48,4 +48,5 @@ export class UserController {
     const base64Image = file.buffer.toString('base64');
     return { msg : 'image upload successfully', image : base64Image}
   }
+  
 }

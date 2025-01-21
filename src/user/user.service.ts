@@ -84,4 +84,8 @@ export class UserService {
 
     return await newImage.save();
   }
+
+  async findById(userId: string) {
+    return this.userModel.findById(userId).select('-password'); // ไม่แสดงรหัสผ่าน
+  }
 }

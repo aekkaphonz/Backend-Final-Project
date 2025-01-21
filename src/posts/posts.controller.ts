@@ -18,7 +18,7 @@ export class PostsController {
 
   @Post()
   async createPost(@Body() createPostDto: CreatePostDto, @Body('userId') userId: string) {
-    const postData = { ...createPostDto, userId }; // รวม userId เข้ากับข้อมูลโพสต์
+    const postData = { ...createPostDto, userId };
     return this.postsService.create(postData);
   }
   
