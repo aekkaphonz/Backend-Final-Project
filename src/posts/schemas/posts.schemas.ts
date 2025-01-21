@@ -9,10 +9,7 @@ export class Post extends Document {
   @Prop({ required: true })
   content: string;
 
-  @Prop({ required: true })
-  tags: string[];
-
-  @Prop({ required: true })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
   @Prop()

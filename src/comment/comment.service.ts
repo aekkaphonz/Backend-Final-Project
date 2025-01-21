@@ -11,7 +11,6 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 
-
 @Injectable()
 export class CommentService {
   constructor(
@@ -49,9 +48,9 @@ export class CommentService {
       .exec();
 
   
-      if (!updatedComment) {
-        throw new NotFoundException(`Comment with ID ${id} not found`);
-      }      
+    if (!updatedComment) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
 
       return updatedComment;
   }
@@ -66,6 +65,13 @@ export class CommentService {
     userId: string,
     comment: string,
   ): Promise<PostComment> {
+    if (!mongoose.isValidObjectId(postId)) {
+      throw new BadRequestException('Invalid postId format.');
+    }
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new BadRequestException('Invalid userId format.');
+    }
+
     const newComment = new this.commentModel({
       postId,
       userId,
@@ -74,30 +80,15 @@ export class CommentService {
 
     const savedComment = await newComment.save();
 
-    const updatedContent = await this.contentModel.findByIdAndUpdate(
+    await this.contentModel.findByIdAndUpdate(
       postId,
       { $push: { comments: savedComment._id } },
-      { new: true },
+      { new: true, upsert: true },
     );
-    console.log('Updated Content:', updatedContent);
-    if (!updatedContent) {
-      throw new NotFoundException(`Content with ID ${postId} not found`);
-    }
-
-    // เผื่อใช้
-    // const user = await this.userModel.findByIdAndUpdate(
-    //   userId,
-    //   { $push: { comments: savedComment._id } },
-    //   { new: true },
-    // );
-    // console.log('Updated User:', user);
-
-    // if (!user) {
-    //   throw new NotFoundException(`User with ID ${userId} not found`);
-    // }
 
     return savedComment;
   }
+
   async getCommentsInContent(contentId: string) {
     const comments = await this.commentModel
       .find({ postId: contentId })

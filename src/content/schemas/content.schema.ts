@@ -18,7 +18,7 @@ export class Content {
   description: string;
 
   @Prop({ required: true  })
-  image: string;
+  image: string; //แก้ type
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: string[]; 
