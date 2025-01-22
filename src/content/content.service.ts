@@ -79,13 +79,10 @@ export class ContentService {
     return contentWithComments;
   }
 
-  async createContent(
-    userId: string, // token : string ยังไม่มีฟังก์ชันแปลง token JWT to userId
-    title: string,
-    detail: string,
-    description: string,
-    image: string,
-  ): Promise<Content> {
+  async createContent(createContentDto: CreateContentDto): Promise<Content> {
+
+    const { userId, title, detail, description, image } = createContentDto;
+  
     const newContent = new this.contentModel({
       userId,
       title,
@@ -93,19 +90,23 @@ export class ContentService {
       description,
       image,
     });
-
+  
     const savedContent = await newContent.save();
+  
+   
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       { $push: { content: savedContent._id } },
       { new: true },
     );
+  
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-
+  
     return savedContent;
   }
+  
 
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);

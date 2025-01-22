@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { PostComment } from 'src/comment/schemas/comment.schema';
 
 export type ContentDocument = Content & Document;
 
@@ -21,7 +22,7 @@ export class Content {
   image: string; //แก้ type
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
-  comments: string[]; 
+  comments: PostComment[]; 
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);

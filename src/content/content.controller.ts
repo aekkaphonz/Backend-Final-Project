@@ -66,12 +66,13 @@ export class ContentController {
   }
 
   @ApiOperation({ summary: 'Create content' })
-  @ApiOkResponse({ type: [GetContentDto] })
-  @Post('/createContent')
-  async createContent(@Body() createContent: CreateContentDto) {
-    console.log('Received Data:', createContent);
-    return this.contentService.create(createContent);
-  }
+@ApiOkResponse({ type: GetContentDto })
+@Post('/createContent')
+async createContent(@Body() createContentDto: CreateContentDto) {
+  console.log('Received Data:', createContentDto);
+  return this.contentService.createContent(createContentDto);
+}
+
 
   @ApiOkResponse({ type: [GetContentDto] })
   @ApiOperation({ summary: 'Get only content' })

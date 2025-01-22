@@ -1,7 +1,7 @@
 {
   "name": "backend-final",
   "version": "0.0.1",
-  "description": "",
+  "description": "1.โคลนโปรเจคต์นี้ไปยังเครื่องของคุณ:",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
@@ -23,12 +23,12 @@
     "@fastify/secure-session": "^8.1.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^3.3.0",
-    "@nestjs/core": "^10.4.15",
+    "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/passport": "^10.0.3",
-    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^11.0.2",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
@@ -91,5 +91,10 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "main": ".eslintrc.js",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": []
 }

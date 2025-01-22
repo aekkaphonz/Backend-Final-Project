@@ -9,7 +9,7 @@ import {
   NotFoundException,
   UseInterceptors,
   UploadedFile,
-  
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -18,6 +18,8 @@ import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { GetUserDto } from './dto/getuser.dto';
+import * as multer from 'multer';
+
 
 @Controller('user')
 export class UserController {
@@ -38,22 +40,38 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  // @ApiOperation({ summary: 'Use to check logged-in user profile' })
+  // @ApiOkResponse({ type: GetUserDto })
+  // @Get('profile') 
+  // async getLoggedInUserProfile(@Req() req: Request) {
+    
+  //   const userId = req.session?.userId; 
+  //   if (!userId) {
+  //     throw new Error('User not logged in');
+  //   }
+
+    
+  //   return this.userService.getOneUser(userId);
+  // }
 
   @ApiOperation({ summary: 'Use to check your profile' })
   @ApiOkResponse({type : [GetUserDto] })
   @UseGuards(AuthenticatedGuard)
-  @Get('/profile') //ตอนยิงใช้ URL path http://localhost:3001/user/profile method Get
+  @Get('/profile') 
   async getProfile(@Request() req) {
     const user = await this.userService.findByEmail(req.user.email);
-    return user;
+    return [user];
   }
 
   @ApiOperation({ summary: 'Use to check other profile' })
   @ApiOkResponse({type : [GetUserDto] })
-  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/user/<id> method Get
+  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/user/:id method Get
   async getOneUser(@Param('id') userId: string) {
     return this.userService.getOneUser(userId);
   }
+
+
+
 
   // @Post('image')
   // @UseInterceptors(FileInterceptor('file'))
