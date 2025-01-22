@@ -30,7 +30,7 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get all content' })
   @ApiOkResponse({ type: [GetContentDto] })
-  @Get() //ตอนยิงใช้ URL path http://localhost:3001/contents
+  @Get()
   getAllContent() {
     return this.contentService.findAll();
   }
