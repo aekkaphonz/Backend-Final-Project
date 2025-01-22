@@ -8,9 +8,6 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  // @Prop({ required: true })
-  // password: string; เก็บไว้เขียน validate
-
   @Prop({ required: true, unique: true })
   email: string;
 

@@ -53,7 +53,7 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          'Unsupported file type. Please upload a valid image.',
+          'Invalid file type.',
         );
       }
 
@@ -101,7 +101,7 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          'Unsupported file type. Please upload a valid image.',
+          'Invalid file type.',
         );
       }
 

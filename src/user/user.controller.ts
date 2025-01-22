@@ -35,7 +35,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Get all user' })
   @ApiOkResponse({ type: [GetUserDto] })
-  @Get() //ตอนยิงใช้ URL path http://localhost:3001/user method Get
+  @Get() 
   getAllUsers() {
     return this.userService.findAll();
   }
