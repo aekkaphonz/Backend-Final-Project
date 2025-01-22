@@ -10,7 +10,9 @@ import {
   Put,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
+import { GetCommentDto } from './dto/get-comment-dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ApiOperation, ApiOkResponse } from '@nestjs/swagger'; 
 
 @Controller('comments')
 export class CommentController {
@@ -42,13 +44,14 @@ export class CommentController {
   @ApiOkResponse({description : 'Delete successfully'})
   @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Delete
   async deleteComment(
-    @Param('id') id: string,
-  ): Promise<{ message: string; deletedComment: PostComment }> {
+    @Param('id')
+    id: string,
+  ): Promise<{message:string}> {
     const deletedComment = await this.commentService.deleteById(id);
     if (!deletedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
-    return { message: 'Delete successful', deletedComment };
+    return  { message: 'delete successful' }; 
   }
 
   @ApiOperation({ summary: 'Get all content' })

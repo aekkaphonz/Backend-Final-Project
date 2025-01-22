@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MinLength, IsEmail } from 'class-validator';
+import { IsString, MinLength, IsEmail, Matches } from 'class-validator';
 export class RegisterDto {
   @ApiProperty({description : 'Your email ', example: "test@gmail.com"})
   @IsString()
@@ -24,7 +24,11 @@ export class RegisterDto {
 
   // @ApiProperty()
   // @IsString()
-  // profileImage: string;
+  // @Matches(/^data:image\/(png|jpeg|jpg|gif);base64,[A-Za-z0-9+/=]+$/, {
+  //   message: 'profileImage must be a valid Base64 encoded image',
+  // })
+  // profileImage?: string; 
+  
 }
 
 export class RegisterResponseDto {

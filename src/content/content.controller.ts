@@ -13,6 +13,9 @@ import {
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
 import { UpdateContentDto } from './dto/update-content.dto';
+import { ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { GetContentDto } from './dto/get-content.dto';
+import { CreateContentDto } from './dto/create-content.dto';
 
 @Controller('contents')
 export class ContentController {

@@ -14,6 +14,12 @@ import {
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { GetUserDto } from './dto/getuser.dto';
+import * as multer from 'multer';
+
 
 @Controller('user')
 export class UserController {
