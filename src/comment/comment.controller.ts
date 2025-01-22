@@ -11,18 +11,21 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { GetCommentDto } from './dto/get-comment-dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { PostComment } from './schemas/comment.schema';
+
+
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('/addComment') //ตอนยิงใช้ URL path http://localhost:3001/comments/addComment
-  async addComment(
-    @Body('postId') postId: string,
-    @Body('userId') userId: string,
-    @Body('comment') comment: string,
-  ) {
-    return this.commentService.addComment(postId, userId, comment);
+  async addComment(@Body() createCommentDto: CreateCommentDto) {
+    return this.commentService.addComment(createCommentDto);
   }
 
   @Get('content/:id') //ตอนยิงใช้ URL path http://localhost:3001/comments/content/<id> id ของ post หรือ content นั้นไว้ดู comment ทั้งหมดใน post
@@ -41,14 +44,13 @@ export class CommentController {
  
   @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Delete
   async deleteComment(
-    @Param('id')
-    id: string,
-  ): Promise<{message:string}> {
+    @Param('id') id: string,
+  ): Promise<{ message: string; deletedComment: PostComment }> {
     const deletedComment = await this.commentService.deleteById(id);
     if (!deletedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
-    return  { message: 'delete successful' }; 
+    return { message: 'Delete successful', deletedComment };
   }
 
   @ApiOperation({ summary: 'Get all content' })
@@ -68,16 +70,19 @@ export class CommentController {
 
   
   @Put(':id') 
-  async updateContent(
+  async updateComment(
     @Param('id') id: string,
-    @Body() content: UpdateCommentDto,
-  ): Promise<{ message: string }> {
-    const updated = await this.commentService.updateById(id, content);
-    if (!updated) {
+    @Body() updateCommentDto: UpdateCommentDto,
+  ): Promise<{ message: string; updatedComment: PostComment }> {
+    const updatedComment = await this.commentService.updateById(
+      id,
+      updateCommentDto,
+    );
+    if (!updatedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
-    return { message: 'Update successful' };
+    return { message: 'Update successful', updatedComment };
   }
-  
-  
+
 }
+  

@@ -8,7 +8,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
-import { SessionSerializer } from './session.serializer ';
+import { SessionSerializer } from './session.serializer';
 @Module({
   imports: [UserModule, PassportModule,
     // JwtModule.registerAsync({

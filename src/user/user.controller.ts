@@ -11,6 +11,9 @@ import {
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { GetUserDto } from './dto/getuser.dto';
 
 @Controller('user')
 export class UserController {
