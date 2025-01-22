@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
@@ -8,7 +8,7 @@ import { UserModule } from './user/user.module';
 import { ContentModule } from './content/content.module';
 import { CommentModule } from './comment/comment.module';
 import { PostsModule } from './posts/posts.module';
-import { ImageModule } from './image/image.module';
+
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { ImageModule } from './image/image.module';
     ContentModule,
     CommentModule,
     PostsModule,
-    ImageModule, 
+
   ],
   controllers: [AppController],
   providers: [AppService],
