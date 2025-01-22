@@ -9,9 +9,12 @@ export class PostsService {
   constructor(@InjectModel(Post.name) private readonly postModel: Model<Post>) { }
 
   async create(createPostDto: Partial<Post>): Promise<Post> {
-    const newPost = new this.postModel(createPostDto);
+    const newPost = new this.postModel({
+      ...createPostDto,
+      userId: createPostDto.userId || null, // ✅ ให้ userId เป็น null ถ้าไม่มี
+    });
     return newPost.save();
-  }
+  }  
 
   async findAll(): Promise<Post[]> {
     return this.postModel.find().exec();

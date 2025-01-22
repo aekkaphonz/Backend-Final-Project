@@ -27,8 +27,8 @@ export class Post extends Document {
   @Prop({ type: [String] })
   images: string[];
 
-  @Prop({ required: true })
-  userId: string;
+  @Prop({ required: false }) // เปลี่ยน required เป็น false
+userId: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

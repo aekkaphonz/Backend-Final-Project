@@ -17,11 +17,10 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) { }
 
   @Post()
-  async createPost(@Body() createPostDto: CreatePostDto, @Body('userId') userId: string) {
-    const postData = { ...createPostDto, userId };
-    return this.postsService.create(postData);
+  async createPost(@Body() createPostDto: CreatePostDto) {
+    return this.postsService.create(createPostDto);
   }
-  
+
   @Get()
   async getAllPosts() {
     return this.postsService.findAll();

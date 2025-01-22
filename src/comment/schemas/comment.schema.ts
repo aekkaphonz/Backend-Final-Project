@@ -1,30 +1,28 @@
-  import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-  import mongoose, { Document } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Document } from 'mongoose';
 
-  export type CommentDocument = PostComment & Document;
+export type CommentDocument = PostComment & Document;
 
-  @Schema({ timestamps: true })
-  export class PostComment {
-    @Prop({
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Content',
-      required: true,
-    })
-    postId: string;
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-    userId: string;
+@Schema({ timestamps: true })
+export class PostComment {
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Content',
+    required: true,
+  })
+  postId: string;
 
-    @Prop({ required: true })
-    comment: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  userId: string;
+
+  @Prop({ required: true })
+  comment: string;
 
   //   @Prop({ default: Date.now })
   //   commentCreatedAt: Date;
 
   //   @Prop({ default: Date.now })
   //   commentUpdatedAt: Date;
+}
 
-
-
-  }
-
-  export const CommentSchema = SchemaFactory.createForClass(PostComment);
+export const CommentSchema = SchemaFactory.createForClass(PostComment);
