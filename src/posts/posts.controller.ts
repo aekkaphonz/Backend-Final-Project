@@ -68,6 +68,7 @@ export class PostsController {
   async incrementLike(@Param('id') id: string): Promise<PostSchema> {
     return this.postsService.incrementLike(id);
   }
+  
 
 
 }

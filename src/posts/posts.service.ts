@@ -48,5 +48,6 @@ export class PostsService {
       .findByIdAndUpdate(postId, { $inc: { likeCount: 1 } }, { new: true })
       .exec();
   }
+  
 
 }
