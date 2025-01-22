@@ -25,7 +25,8 @@ import { ImageModule } from './image/image.module';
     UserModule,
     ContentModule,
     CommentModule,
-    PostsModule, // เพิ่ม PostsModule
+    PostsModule,
+    ImageModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

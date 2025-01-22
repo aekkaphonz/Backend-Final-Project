@@ -11,6 +11,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 
+
 @Injectable()
 export class CommentService {
   constructor(
@@ -52,49 +53,54 @@ export class CommentService {
     return updatedComment;
   }
 
-  async deleteById(id: string): Promise<PostComment> {
-    const deletedComment = await this.commentModel.findByIdAndDelete(id);
-    if (!deletedComment) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
-    }
-    return deletedComment;
+  async deleteById(id: string): Promise<Comment> {
+    return await this.commentModel.findByIdAndDelete(id);
   }
 
-  async addComment(createCommentDto: CreateCommentDto): Promise<PostComment> {
-    const { postId, userId, comment } = createCommentDto;
-  
+  async addComment(
+    postId: string,
+    userId: string,
+    comment: string,
+  ): Promise<PostComment> {
     const newComment = new this.commentModel({
       postId,
       userId,
       comment,
     });
-  
+
     const savedComment = await newComment.save();
-  
+
     const updatedContent = await this.contentModel.findByIdAndUpdate(
       postId,
       { $push: { comments: savedComment._id } },
       { new: true },
     );
-  
+    console.log('Updated Content:', updatedContent);
     if (!updatedContent) {
       throw new NotFoundException(`Content with ID ${postId} not found`);
     }
-  
+
+    // เผื่อใช้
+    // const user = await this.userModel.findByIdAndUpdate(
+    //   userId,
+    //   { $push: { comments: savedComment._id } },
+    //   { new: true },
+    // );
+    // console.log('Updated User:', user);
+
+    // if (!user) {
+    //   throw new NotFoundException(`User with ID ${userId} not found`);
+    // }
+
     return savedComment;
   }
-  
-
-  async getCommentsInContent(contentId: string): Promise<PostComment[]> {
-    if (!mongoose.isValidObjectId(contentId)) {
-      throw new BadRequestException('Please enter a correct Content ID.');
-    }
-
+  async getCommentsInContent(contentId: string) {
+    console.log('Fetching comments for Content ID:', contentId);
     const comments = await this.commentModel
       .find({ postId: contentId })
       .populate('userId', 'userName')
       .exec();
-
+    console.log('Comments:', comments);
     return comments;
   }
 }

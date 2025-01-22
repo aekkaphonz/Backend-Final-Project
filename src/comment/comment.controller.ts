@@ -11,21 +11,18 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ApiOperation } from '@nestjs/swagger';
-import { ApiOkResponse } from '@nestjs/swagger';
-import { GetCommentDto } from './dto/get-comment-dto';
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { PostComment } from './schemas/comment.schema';
-
-
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('/addComment') //ตอนยิงใช้ URL path http://localhost:3001/comments/addComment
-  async addComment(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentService.addComment(createCommentDto);
+  async addComment(
+    @Body('postId') postId: string,
+    @Body('userId') userId: string,
+    @Body('comment') comment: string,
+  ) {
+    return this.commentService.addComment(postId, userId, comment);
   }
 
   @Get('content/:id') //ตอนยิงใช้ URL path http://localhost:3001/comments/content/<id> id ของ post หรือ content นั้นไว้ดู comment ทั้งหมดใน post
@@ -41,7 +38,8 @@ export class CommentController {
     }
     return comments;
   }
- 
+  @ApiOperation({ summary: 'Delete comment' })
+  @ApiOkResponse({description : 'Delete successfully'})
   @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Delete
   async deleteComment(
     @Param('id') id: string,
@@ -70,18 +68,15 @@ export class CommentController {
 
   
   @Put(':id') 
-  async updateComment(
+  async updateContent(
     @Param('id') id: string,
-    @Body() updateCommentDto: UpdateCommentDto,
-  ): Promise<{ message: string; updatedComment: PostComment }> {
-    const updatedComment = await this.commentService.updateById(
-      id,
-      updateCommentDto,
-    );
-    if (!updatedComment) {
+    @Body() content: UpdateCommentDto,
+  ): Promise<{ message: string }> {
+    const updated = await this.commentService.updateById(id, content);
+    if (!updated) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
-    return { message: 'Update successful', updatedComment };
+    return { message: 'Update successful' };
   }
 
 }

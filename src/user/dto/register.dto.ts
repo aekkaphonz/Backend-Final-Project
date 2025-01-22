@@ -45,4 +45,6 @@ export class RegisterResponseDto {
 
   @ApiProperty()
   readonly dateOfBirth: string;
+
+
 }
