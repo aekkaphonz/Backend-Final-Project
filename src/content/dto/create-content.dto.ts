@@ -1,4 +1,4 @@
-import { IsNotEmpty, isString, IsString } from 'class-validator';
+import {  IsMongoId,IsNotEmpty, IsOptional, isString, IsString } from 'class-validator';
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -6,21 +6,23 @@ export class CreateContentDto {
 
 
   @ApiProperty({description : 'Your id ', example: "678db93685ad6c7405e8fd97"})
-  readonly userId:string;
+  
+  userId: string;
 
   @ApiProperty({description : 'Title ', example: "This is title"})
   @IsString()
   @IsNotEmpty()
-  readonly title: string;
+   title: string;
 
   @ApiProperty({description : 'Detail ', example: "Test detail"})
   @IsString()
   @IsNotEmpty()
-  readonly detail: string;
+   detail: string;
 
   @ApiProperty({description : 'Description', example: "This is description"})
-  readonly description: string;
+   description: string;
 
   @ApiProperty({description : 'Your image', example: "example.png"})
-  readonly image: string;
+  @IsOptional()
+   postImage?: string;
 }

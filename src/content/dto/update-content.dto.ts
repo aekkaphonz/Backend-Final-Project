@@ -21,5 +21,5 @@ export class UpdateContentDto {
   description: string;
 
   @ApiProperty()
-  image: string;
+  postImage: string;
 }
