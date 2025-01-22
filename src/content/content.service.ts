@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
-import  { Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import {
   CommentDocument,
@@ -33,26 +33,19 @@ export class ContentService {
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
- 
-  async updateById(
-    id: string,
-    updateContentDto: UpdateContentDto,
-  ): Promise<Content> {
-    if (updateContentDto.userId) {
-      updateContentDto.userId = new Types.ObjectId(updateContentDto.userId);
-    }
 
-    const updatedContent = await this.contentModel
-      .findByIdAndUpdate(id, updateContentDto, {
+  async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
+    const content = await this.contentModel.findByIdAndUpdate(
+      id,
+      updateContentDto,
+      {
         new: true,
-      })
-      .exec();
-
-    if (!updatedContent) {
-      throw new Error('Content not found');
+      },
+    );
+    if (!content) {
+      throw new NotFoundException('Content not found');
     }
-
-    return updatedContent;
+    return content;
   }
 
   async deleteById(id: string): Promise<Content> {
@@ -80,33 +73,36 @@ export class ContentService {
   }
 
   async createContent(createContentDto: CreateContentDto): Promise<Content> {
+    const { userId, title, detail, description, postImage } = createContentDto;
 
-    const { userId, title, detail, description, image } = createContentDto;
-  
     const newContent = new this.contentModel({
       userId,
       title,
       detail,
       description,
-      image,
+      postImage,
     });
-  
-    const savedContent = await newContent.save();
-  
-   
-    const user = await this.userModel.findByIdAndUpdate(
-      userId,
-      { $push: { content: savedContent._id } },
-      { new: true },
-    );
-  
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+
+    try {
+      const savedContent = await newContent.save();
+
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        { $push: { content: savedContent._id } },
+        { new: true },
+      );
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      return savedContent;
+    } catch (error) {
+      throw new BadRequestException(
+        'Failed to create content. Please check your input.',
+      );
     }
-  
-    return savedContent;
   }
-  
 
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);
@@ -120,20 +116,4 @@ export class ContentService {
 
     return content;
   }
-
-   //  เผื่อต้องใช้
-  // async findById(id: string): Promise<Content> {
-  //   const isValidId = mongoose.isValidObjectId(id);
-  //   if (!isValidId) {
-  //     throw new BadRequestException('please enter correct id.');
-  //   }
-
-  //   const content = await this.contentModel.findById(id).exec();
-  //   if (!content) {
-  //     throw new NotFoundException('Content not found');
-  //   }
-  //    const contentObject = content.toObject();
-  //    delete contentObject.userId;
-  //   return content;
-  // }
 }

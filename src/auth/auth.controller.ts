@@ -7,12 +7,11 @@ import {
   Get,
   Session,
   Body,
-  Response
+  Response,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
-
 
 import { session } from 'passport';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
@@ -56,11 +55,11 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Use to login' })
-  @ApiOkResponse({description : 'Login successful'})
-  @ApiBadRequestResponse({description:'Login failed'})
+  @ApiOkResponse({ description: 'Login successful' })
+  @ApiBadRequestResponse({ description: 'Login failed' })
   @ApiBody({
     description: 'User login credentials',
-    type: LoginDto, 
+    type: LoginDto,
   })
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -74,7 +73,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Use to check auth' })
-  @ApiOkResponse({description : 'You an authorize user'})
+  @ApiOkResponse({ description: 'You an authorize user' })
   @UseGuards(AuthenticatedGuard)
   @Get('profile')
   profile(@Request() req) {
@@ -89,6 +88,18 @@ export class AuthController {
   @Get('google')
   async googleAuth(@Request() req) {}
 
+  @ApiOperation({ summary: 'Use to logout' })
+  @ApiOkResponse({ description: 'your session has been destroyed' })
+  @Post('logout')
+  logout(@Request() req, @Response() res) {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ msg: 'Failed to destroy session' });
+      }
+      res.clearCookie('Session');
+      return res.status(200).json({ msg: 'your session has been destroyed' });
+    });
+  }
   // @UseGuards(GoogleAuthGuard)
   // @Get('google/callback')
   // async googleAuthRedirect(@Request() req, @Res() res: Response) {
@@ -100,20 +111,6 @@ export class AuthController {
   //   console.log('User stored in session:', req.session.user);
   //   res.redirect('http://localhost:3001/user/profile');
   // }
-
-  @ApiOperation({ summary: 'Use to logout' })
-  @ApiOkResponse({description : 'your session has been destroyed'})
-  @Post('logout')
-  logout(@Request() req, @Response() res) {
-    req.session.destroy((err) => {
-      if (err) {
-       
-        return res.status(500).json({ msg: 'Failed to destroy session' });
-      }
-      res.clearCookie('Session');
-      return res.status(200).json({ msg: 'your session has been destroyed' });
-    });
-  }
 
   // @UseGuards(LocalAuthGuard)
   // @Post('login') //ตอนยิงใช้ URL path http://localhost:3001/auth/login method Post
