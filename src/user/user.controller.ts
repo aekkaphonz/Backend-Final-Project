@@ -67,19 +67,11 @@ export class UserController {
     }
   }
 
-  // เผื่อใช้
-  //   @ApiOperation({ summary: 'Use to check your profile' })
-  //   @ApiOkResponse({ type: [GetUserDto] })
-  //   @UseGuards(AuthenticatedGuard)
-  //   @Get('/profile')
-  //   async getProfile(@Request() req) {
-  //     const user = await this.userService.findByEmail(req.user.email);
-  //     return [user];
-  //   }
+
 
   @ApiOperation({ summary: 'Use to check other profile' })
   @ApiOkResponse({ type: [GetUserDto] })
-  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/user/:id method Get
+  @Get(':id') 
   async getOneUser(@Param('id') userId: string) {
     return this.userService.getOneUser(userId);
   }
