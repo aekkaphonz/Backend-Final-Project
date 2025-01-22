@@ -46,4 +46,10 @@ export class PostsService {
       .exec();
   }
 
+  async searchByTitle(title: string): Promise<Post[]> {
+    return this.postModel
+      .find({ title: { $regex: title, $options: 'i' } }) // ใช้ regular expression เพื่อค้นหาแบบ case-insensitive
+      .exec();
+  }  
+
 }
