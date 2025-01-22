@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
-import { Model, Types } from 'mongoose';
+import  { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import {
   CommentDocument,
@@ -80,7 +80,7 @@ export class ContentService {
   }
 
   async createContent(
-    userId: string, // token : string ยังไม่มีฟังก์ชันแปลง token JWT to userId
+    userId: string,
     title: string,
     detail: string,
     description: string,
@@ -93,17 +93,49 @@ export class ContentService {
       description,
       image,
     });
-
+  
     const savedContent = await newContent.save();
+
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       { $push: { content: savedContent._id } },
       { new: true },
     );
+    console.log('Updated User:', user);
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-
+  
     return savedContent;
   }
+  
+
+  async findById(id: string): Promise<Content> {
+    const isValidId = Types.ObjectId.isValid(id);
+    if (!isValidId) {
+      throw new BadRequestException('Please provide a valid ID.');
+    }
+    const content = await this.contentModel.findById(id).exec();
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+
+    return content;
+  }
+
+   //  เผื่อต้องใช้
+  // async findById(id: string): Promise<Content> {
+  //   const isValidId = mongoose.isValidObjectId(id);
+  //   if (!isValidId) {
+  //     throw new BadRequestException('please enter correct id.');
+  //   }
+
+  //   const content = await this.contentModel.findById(id).exec();
+  //   if (!content) {
+  //     throw new NotFoundException('Content not found');
+  //   }
+  //    const contentObject = content.toObject();
+  //    delete contentObject.userId;
+  //   return content;
+  // }
 }

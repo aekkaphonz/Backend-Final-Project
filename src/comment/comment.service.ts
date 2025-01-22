@@ -11,6 +11,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 
+
 @Injectable()
 export class CommentService {
   constructor(
@@ -47,7 +48,6 @@ export class CommentService {
       .findByIdAndUpdate(id, updateCommentDto, { new: true })
       .exec();
 
-  
     if (!updatedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
@@ -61,17 +61,8 @@ export class CommentService {
   }
 
   async addComment(
-    postId: string,
-    userId: string,
-    comment: string,
+    createCommentDto: CreateCommentDto,
   ): Promise<PostComment> {
-    if (!mongoose.isValidObjectId(postId)) {
-      throw new BadRequestException('Invalid postId format.');
-    }
-    if (!mongoose.isValidObjectId(userId)) {
-      throw new BadRequestException('Invalid userId format.');
-    }
-
     const newComment = new this.commentModel({
       postId,
       userId,
@@ -80,11 +71,27 @@ export class CommentService {
 
     const savedComment = await newComment.save();
 
-    await this.contentModel.findByIdAndUpdate(
+    const updatedContent = await this.contentModel.findByIdAndUpdate(
       postId,
       { $push: { comments: savedComment._id } },
-      { new: true, upsert: true },
+      { new: true },
     );
+    console.log('Updated Content:', updatedContent);
+    if (!updatedContent) {
+      throw new NotFoundException(`Content with ID ${postId} not found`);
+    }
+
+    // เผื่อใช้
+    // const user = await this.userModel.findByIdAndUpdate(
+    //   userId,
+    //   { $push: { comments: savedComment._id } },
+    //   { new: true },
+    // );
+    // console.log('Updated User:', user);
+
+    // if (!user) {
+    //   throw new NotFoundException(`User with ID ${userId} not found`);
+    // }
 
     return savedComment;
   }

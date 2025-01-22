@@ -27,9 +27,13 @@ export class User {
   dateOfBirth: string;
 
   @Prop()
-   googleId: string;
-   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Content' }] }) 
-   content: Content[];
+  googleId: string;
+
+  @Prop()
+  profileImage: string;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Content' }] })
+  content: Content[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

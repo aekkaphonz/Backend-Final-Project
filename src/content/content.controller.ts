@@ -14,16 +14,19 @@ import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
 import { UpdateContentDto } from './dto/update-content.dto';
 
-
 @Controller('contents')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
 
+  @ApiOperation({ summary: 'Get all content' })
+  @ApiOkResponse({ type: [GetContentDto] })
   @Get() //ตอนยิงใช้ URL path http://localhost:3001/contents
   getAllContent() {
     return this.contentService.findAll();
   }
 
+  @ApiOperation({ summary: 'Update content' })
+  @ApiOkResponse({ type: [GetContentDto] })
   @Put(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Put
   async updateContent(
     @Param('id')
@@ -34,7 +37,7 @@ export class ContentController {
     return this.contentService.updateById(id, content);
   }
 
-  @Get('detail/:id') //ตอนยิงใช้ URL path http://localhost:3001/contents/detail:id method Get
+  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Get
   async getContent(@Param('id') contentId: string) {
     const content = await this.contentService.getContentWithComments(contentId);
     if (!content) {
@@ -43,6 +46,8 @@ export class ContentController {
     return content;
   }
 
+  @ApiOperation({ summary: 'Delete content' })
+  @ApiOkResponse({description : 'Delete successfully'})
   @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Delete
   async deleteContent(
     @Param('id')
@@ -67,6 +72,4 @@ export class ContentController {
       image,
     );
   }
-
-  
 }

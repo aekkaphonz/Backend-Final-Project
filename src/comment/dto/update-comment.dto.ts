@@ -1,21 +1,8 @@
-import { IsNotEmpty, IsString, IsMongoId } from 'class-validator';
-
-export class AddCommentDto {
-  @IsNotEmpty()
-  @IsMongoId()
-  postId: string;
-
-  @IsNotEmpty()
-  @IsMongoId()
-  userId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  comment: string;
-}
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class UpdateCommentDto {
-  @IsNotEmpty()
-  @IsString()
+  userId?: Types.ObjectId;
+  postId?: Types.ObjectId;
   comment: string;
 }

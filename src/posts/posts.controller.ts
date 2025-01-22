@@ -35,4 +35,40 @@ export class PostsController {
     }
     return post;
   }
+
+  @Put(':id') // เพิ่ม endpoint สำหรับการอัปเดตข้อมูล
+  async updatePost(@Param('id') id: string, @Body() updateData: Partial<CreatePostDto>) {
+    const updatedPost = await this.postsService.update(id, updateData);
+    if (!updatedPost) {
+      throw new NotFoundException('Post not found');
+    }
+    return updatedPost;
+  }
+
+  @Delete(':id') // เพิ่มการลบข้อมูล
+  async deletePost(@Param('id') id: string) {
+    const result = await this.postsService.delete(id);
+    if (!result) {
+      throw new NotFoundException('Post not found');
+    }
+    return { message: 'Post deleted successfully' };
+  }
+
+  @Get('count/:userId')
+  async countPostsByUser(@Param('userId') userId: string) {
+    const count = await this.postsService.countPostsByAuthor(userId);
+    return { postCount: count };
+  }
+
+  @Put(':id/view')
+  async incrementView(@Param('id') id: string): Promise<PostSchema> {
+    return this.postsService.incrementView(id);
+  }
+
+  @Put(':id/like')
+  async incrementLike(@Param('id') id: string): Promise<PostSchema> {
+    return this.postsService.incrementLike(id);
+  }
+
+
 }

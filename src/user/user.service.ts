@@ -33,22 +33,23 @@ export class UserService {
       const user = await this.userModel
         .findById(userId)
         .populate({
-          path: 'content',
+          path: 'content', 
           populate: {
-            path: 'comments',
+            path: 'comments', 
             model: 'PostComment',
             populate: {
-              path: 'userId',
+              path: 'userId', 
               select: 'userName',
             },
           },
         })
         .exec();
-
+  
+      console.log('User:', user); 
       if (!user) {
         throw new NotFoundException(`User with ID ${userId} not found.`);
-      }
-
+      } 
+  
       return user;
     } catch (error) {
       console.error('Error fetching:', error.message);
@@ -61,27 +62,5 @@ export class UserService {
   }
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
-  }
-
-  async saveImage(
-    email: string,
-    password: string,
-    userName: string,
-    gender: string,
-    dateOfBirth: string,
-    googleId: string,
-    profileImage: string,
-  ): Promise<User> {
-    const newImage = new this.userModel({
-      email,
-      password,
-      userName,
-      gender,
-      dateOfBirth,
-      googleId,
-      profileImage,
-    });
-
-    return await newImage.save();
   }
 }

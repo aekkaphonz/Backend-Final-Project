@@ -11,42 +11,18 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { AddCommentDto } from './dto/add-comment.dto';
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  //add
   @Post('/addComment') //ตอนยิงใช้ URL path http://localhost:3001/comments/addComment
-  async addComment(@Body() addCommentDto: AddCommentDto) {
-    return this.commentService.addComment(
-      addCommentDto.postId,
-      addCommentDto.userId,
-      addCommentDto.comment,
-    );
-  }
-
-  //update
-  @Put(':id')
-  async updateComment(
-    @Param('id') id: string,
-    @Body() updateCommentDto: UpdateCommentDto,
+  async addComment(
+    @Body('postId') postId: string,
+    @Body('userId') userId: string,
+    @Body('comment') comment: string,
   ) {
-    return this.commentService.updateById(id, updateCommentDto);
-  }
-
-  //delete
-  @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Delete
-  async deleteComment(
-    @Param('id')
-    id: string,
-  ): Promise<{message:string}> {
-    const deletedComment = await this.commentService.deleteById(id);
-    if (!deletedComment) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
-    }
-    return  { message: 'delete successful' }; 
+    return this.commentService.addComment(postId, userId, comment);
   }
 
   @Get('content/:id') //ตอนยิงใช้ URL path http://localhost:3001/comments/content/<id> id ของ post หรือ content นั้นไว้ดู comment ทั้งหมดใน post
@@ -63,17 +39,45 @@ export class CommentController {
     return comments;
   }
  
+  @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Delete
+  async deleteComment(
+    @Param('id')
+    id: string,
+  ): Promise<{message:string}> {
+    const deletedComment = await this.commentService.deleteById(id);
+    if (!deletedComment) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+    return  { message: 'delete successful' }; 
+  }
 
+  @ApiOperation({ summary: 'Get all content' })
+  @ApiOkResponse({ type: [GetCommentDto] })
   @Get()
   getAllComment() {
     return this.commentService.findAll();
   }
 
+
+  @ApiOperation({ summary: 'Get CommentById' })
+  @ApiOkResponse({ type: [GetCommentDto] })
   @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/comments/<id> method Get
   async getComment(@Param('id') id: string) {
     return this.commentService.findById(id);
   }
 
+  
+  @Put(':id') 
+  async updateContent(
+    @Param('id') id: string,
+    @Body() content: UpdateCommentDto,
+  ): Promise<{ message: string }> {
+    const updated = await this.commentService.updateById(id, content);
+    if (!updated) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+    return { message: 'Update successful' };
+  }
   
   
 }
