@@ -18,7 +18,7 @@ export class AuthService {
     const existingUser = await this.findByEmail(registerDto.email);
     if (existingUser) {
       throw new BadRequestException(
-        'This email is already registered. Please use a different email',
+        'This email is already registered.',
       );
     }
 
