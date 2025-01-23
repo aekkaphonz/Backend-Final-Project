@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { RegisterDto } from './dto/register.dto';
 import { Content } from 'src/content/schemas/content.schema';
 
@@ -88,4 +88,18 @@ export class UserService {
   async deleteUserById(id: string): Promise<User> {
     return await this.userModel.findByIdAndDelete(id);
   }
+
+    async findById(id: string): Promise<User> {
+      const isValidId = Types.ObjectId.isValid(id);
+      if (!isValidId) {
+        throw new BadRequestException('Invalid ID. Please try again.');
+      }
+      const user = await this.userModel.findById(id).exec();
+      if (!user) {
+        throw new NotFoundException('Content not found');
+      }
+  
+      return user;
+    }
+ 
 }
