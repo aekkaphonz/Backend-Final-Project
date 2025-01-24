@@ -33,22 +33,23 @@ export class UserService {
       const user = await this.userModel
         .findById(userId)
         .populate({
-          path: 'content',
+          path: 'content', 
           populate: {
-            path: 'comments',
+            path: 'comments', 
             model: 'PostComment',
             populate: {
-              path: 'userId',
+              path: 'userId', 
               select: 'userName',
             },
           },
         })
         .exec();
-
+  
+      console.log('User:', user); 
       if (!user) {
         throw new NotFoundException(`User with ID ${userId} not found.`);
-      }
-
+      } 
+  
       return user;
     } catch (error) {
       console.error('Error fetching:', error.message);
@@ -62,6 +63,17 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+
+  async updateUser(id: string, updateUserDto: Partial<User>) {
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  
 
 
 

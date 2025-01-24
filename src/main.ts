@@ -31,7 +31,7 @@ async function bootstrap() {
       cookie: {
         httpOnly: true,
         secure: false,
-        maxAge: 60000,
+        maxAge: 3600000,
       },
     }),
   );
@@ -39,12 +39,12 @@ async function bootstrap() {
   app.use(passport.session());
 
   app.use(cookieParser());
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  });
+    app.enableCors({
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    });
 
   app.useGlobalPipes(new ValidationPipe());
 

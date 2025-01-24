@@ -9,6 +9,7 @@ import { ContentModule } from './content/content.module';
 import { CommentModule } from './comment/comment.module';
 import { PostsModule } from './posts/posts.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,7 +25,8 @@ import { PostsModule } from './posts/posts.module';
     UserModule,
     ContentModule,
     CommentModule,
-    PostsModule, 
+    PostsModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],
