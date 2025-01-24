@@ -79,15 +79,15 @@ export class ContentController {
     return content;
   }
 
-  @ApiOperation({ summary: 'Delete content' })
-  @ApiOkResponse({ description: 'Delete successfully' })
-  @Delete(':id') 
-  async deleteContent(
-    @Param('id')
-    id: string,
-  ): Promise<Content> {
-    return this.contentService.deleteById(id);
-  }
+   @ApiOperation({ summary: 'Delete Content' })
+    @ApiOkResponse({ description: 'Delete successfully' })
+    @Delete(':id')
+    async deleteContent(
+      @Param('id')
+      id: string,
+    ): Promise<Content> {
+      return this.contentService.deleteContentById(id);
+    }
 
   @ApiOperation({ summary: 'Create content' })
   @ApiOkResponse({ type: GetContentDto })

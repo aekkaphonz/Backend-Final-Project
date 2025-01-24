@@ -48,7 +48,7 @@ export class ContentService {
     return content;
   }
 
-  async deleteById(id: string): Promise<Content> {
+  async deleteContentById(id: string): Promise<Content> {
     return await this.contentModel.findByIdAndDelete(id);
   }
 
