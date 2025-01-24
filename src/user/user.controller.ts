@@ -42,7 +42,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Use to check your profile' })
   @ApiOkResponse({ type: [GetUserDto] })
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard)  
   @Get('/profile')
   async getProfile(@Request() req) {
     try {

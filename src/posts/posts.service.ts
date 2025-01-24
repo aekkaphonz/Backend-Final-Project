@@ -1,17 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from './schemas/posts.schemas';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
   constructor(@InjectModel(Post.name) private readonly postModel: Model<Post>) { }
 
-  async create(createPostDto: Partial<Post>): Promise<Post> {
+  async create(createPostDto: CreatePostDto): Promise<Post> {
     const newPost = new this.postModel(createPostDto);
     return newPost.save();
   }
+
+  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
+    const updatedPost = await this.postModel.findByIdAndUpdate(
+      id,
+      updatePostDto,
+      { new: true },
+    );
+    if (!updatedPost) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return updatedPost;
+  } 
 
   async findAll(): Promise<Post[]> {
     return this.postModel.find().exec();
@@ -19,10 +32,6 @@ export class PostsService {
 
   async findOne(id: string): Promise<Post> {
     return this.postModel.findById(id).exec();
-  }
-
-  async update(id: string, updateData: Partial<CreatePostDto>): Promise<Post> {
-    return this.postModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
   }
 
   async delete(id: string): Promise<boolean> {
@@ -45,5 +54,15 @@ export class PostsService {
       .findByIdAndUpdate(postId, { $inc: { likeCount: 1 } }, { new: true })
       .exec();
   }
+  
+  async findByUserId(userId: string): Promise<Post[]> {
+    return this.postModel.find({ userId }).exec();
+  }  
+
+  async searchByTitle(title: string): Promise<Post[]> {
+    return this.postModel
+      .find({ title: { $regex: title, $options: 'i' } }) // ใช้ regular expression เพื่อค้นหาแบบ case-insensitive
+      .exec();
+  }  
 
 }
