@@ -8,7 +8,6 @@ import { UserModule } from './user/user.module';
 import { ContentModule } from './content/content.module';
 import { CommentModule } from './comment/comment.module';
 import { PostsModule } from './posts/posts.module';
-import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -25,8 +24,7 @@ import { ImageModule } from './image/image.module';
     UserModule,
     ContentModule,
     CommentModule,
-    PostsModule,
-    ImageModule, 
+    PostsModule, // เพิ่ม PostsModule
   ],
   controllers: [AppController],
   providers: [AppService],

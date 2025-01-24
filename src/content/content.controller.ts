@@ -8,14 +8,10 @@ import {
   Delete,
   Put,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
 import { UpdateContentDto } from './dto/update-content.dto';
-import { ApiOperation, ApiOkResponse } from '@nestjs/swagger';
-import { GetContentDto } from './dto/get-content.dto';
-import { CreateContentDto } from './dto/create-content.dto';
 
 @Controller('contents')
 export class ContentController {
@@ -28,21 +24,37 @@ export class ContentController {
     return this.contentService.findAll();
   }
 
-  @ApiOperation({ summary: 'Update content' })
-  @ApiOkResponse({ type: [GetContentDto] })
   @Put(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Put
   async updateContent(
-    @Param('id')
-    id: string,
-    @Body()
-    content: UpdateContentDto,
-  ): Promise<Content> {
-    return this.contentService.updateById(id, content);
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+    @Body() updateContentDto: Partial<CreateContentDto>,
+  ) {
+    const previousContent  = await this.contentService.findById(id);
+    if (!previousContent ) {
+      throw new NotFoundException('Content not found');
+    }
+
+    if (file) {
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException(
+          'Unsupported file type. Please upload a valid image.',
+        );
+      }
+
+      const base64Image = file.buffer.toString('base64');
+      const mimeType = file.mimetype;
+      updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
+    } else if (!updateContentDto.postImage) {
+      
+      updateContentDto.postImage = previousContent .postImage;
+    }
+
+    return this.contentService.updateContent(id, updateContentDto);
   }
 
-  @ApiOperation({ summary: 'Get detail content & comment' })
-  @ApiOkResponse({ type: [GetContentDto] })
-  @Get('detail/:id') //ตอนยิงใช้ URL path http://localhost:3001/contents/detail:id method Get
+  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Get
   async getContent(@Param('id') contentId: string) {
     const content = await this.contentService.getContentWithComments(contentId);
     if (!content) {
@@ -51,8 +63,6 @@ export class ContentController {
     return content;
   }
 
-  @ApiOperation({ summary: 'Delete content' })
-  @ApiOkResponse({description : 'Delete successfully'})
   @Delete(':id') //ตอนยิงใช้ URL path http://localhost:3001/contents/<id> method Delete
   async deleteContent(
     @Param('id')
@@ -61,39 +71,20 @@ export class ContentController {
     return this.contentService.deleteById(id);
   }
 
-  @ApiOperation({ summary: 'Create content' })
-@ApiOkResponse({ type: GetContentDto })
-@Post('/createContent')
-async createContent(@Body() createContentDto: CreateContentDto) {
-  console.log('Received Data:', createContentDto);
-  return this.contentService.createContent(createContentDto);
-}
-
-
-  @ApiOkResponse({ type: [GetContentDto] })
-  @ApiOperation({ summary: 'Get only content' })
-  @Get(':id')
-  async getContentById(@Param('id') id: string): Promise<Content> {
-    return this.contentService.findById(id);
+  @Post('/createContent') //ตอนยิงใช้ URL path http://localhost:3001/contents/createContent
+  async createContent(
+    @Body('userId') userId: string,
+    @Body('title') title: string,
+    @Body('detail') detail: string,
+    @Body('description') description: string,
+    @Body('image') image: string,
+  ) {
+    return this.contentService.createContent(
+      userId,
+      title,
+      detail,
+      description,
+      image,
+    );
   }
 }
-
-
- // @ApiOperation({ summary: 'Create content' })
-  // @ApiOkResponse({ type: [CreateContentDto] })
-  // @Post('/createContent') //ตอนยิงใช้ URL path http://localhost:3001/contents/createContent
-  // async createContent(
-  //   @Body('userId') userId: string,
-  //   @Body('title') title: string,
-  //   @Body('detail') detail: string,
-  //   @Body('description') description: string,
-  //   @Body('image') image: string,
-  // ) {
-  //   return this.contentService.createContent(
-  //     userId,
-  //     title,
-  //     detail,
-  //     description,
-  //     image,
-  //   );
-  // }

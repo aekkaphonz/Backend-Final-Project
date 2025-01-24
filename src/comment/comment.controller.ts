@@ -12,21 +12,21 @@ import {
 import { CommentService } from './comment.service';
 import { GetCommentDto } from './dto/get-comment-dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ApiOperation, ApiOkResponse } from '@nestjs/swagger'; 
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @Post('/addComment') //ตอนยิงใช้ URL path http://localhost:3001/comments/addComment
-  async addComment(
-    @Body('postId') postId: string,
-    @Body('userId') userId: string,
-    @Body('comment') comment: string,
-  ) {
-    return this.commentService.addComment(postId, userId, comment);
+  @ApiOperation({ summary: 'Create comment' })
+  @ApiOkResponse({ type: [GetCommentDto] })
+  @Post('/addComment') // URL: http://localhost:3001/comments/addComment
+  async addComment(@Body() createCommentDto: CreateCommentDto) {
+    return this.commentService.addComment(createCommentDto);
   }
 
+
+  @ApiOperation({ summary: 'Get comment in content' })
+  @ApiOkResponse({ type: [GetCommentDto] })
   @Get('content/:id') //ตอนยิงใช้ URL path http://localhost:3001/comments/content/<id> id ของ post หรือ content นั้นไว้ดู comment ทั้งหมดใน post
   async getCommentsInContent(@Param('id') contentId: string) {
     console.log('Received contentId:', contentId);
@@ -69,17 +69,14 @@ export class CommentController {
     return this.commentService.findById(id);
   }
 
-  
-  @Put(':id') 
-  async updateContent(
+  @ApiOperation({ summary: 'Edit Comment' })
+  @ApiOkResponse({ type: [GetCommentDto] })
+  @Put(':id')
+  async updateComment(
     @Param('id') id: string,
-    @Body() content: UpdateCommentDto,
-  ): Promise<{ message: string }> {
-    const updated = await this.commentService.updateById(id, content);
-    if (!updated) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
-    }
-    return { message: 'Update successful' };
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    return this.commentService.updateById(id, updateCommentDto);
   }
 
 }

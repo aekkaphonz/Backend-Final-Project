@@ -33,7 +33,21 @@ export class ContentService {
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
- 
+  //  เผื่อต้องใช้
+  // async findById(id: string): Promise<Content> {
+  //   const isValidId = mongoose.isValidObjectId(id);
+  //   if (!isValidId) {
+  //     throw new BadRequestException('please enter correct id.');
+  //   }
+
+  //   const content = await this.contentModel.findById(id).exec();
+  //   if (!content) {
+  //     throw new NotFoundException('Content not found');
+  //   }
+  //    const contentObject = content.toObject();
+  //    delete contentObject.userId;
+  //   return content;
+  // }
   async updateById(
     id: string,
     updateContentDto: UpdateContentDto,
@@ -45,14 +59,12 @@ export class ContentService {
     const updatedContent = await this.contentModel
       .findByIdAndUpdate(id, updateContentDto, {
         new: true,
-      })
-      .exec();
-
-    if (!updatedContent) {
-      throw new Error('Content not found');
+      },
+    );
+    if (!content) {
+      throw new NotFoundException('Content not found');
     }
-
-    return updatedContent;
+    return content;
   }
 
   async deleteById(id: string): Promise<Content> {
@@ -79,31 +91,33 @@ export class ContentService {
     return contentWithComments;
   }
 
-  async createContent(createContentDto: CreateContentDto): Promise<Content> {
-
-    const { userId, title, detail, description, image } = createContentDto;
-  
+  async createContent(
+    userId: string,
+    title: string,
+    detail: string,
+    description: string,
+    image: string,
+  ): Promise<Content> {
     const newContent = new this.contentModel({
       userId,
       title,
       detail,
       description,
-      image,
+      postImage,
     });
-  
+
     const savedContent = await newContent.save();
-  
-   
+
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       { $push: { content: savedContent._id } },
       { new: true },
     );
-  
+    console.log('Updated User:', user);
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-  
+
     return savedContent;
   }
   

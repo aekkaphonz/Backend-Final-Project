@@ -19,7 +19,7 @@ export class Content {
   description: string;
 
   @Prop({ required: true  })
-  image: string; //แก้ type
+  image: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: PostComment[]; 
