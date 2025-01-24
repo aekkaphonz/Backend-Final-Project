@@ -48,7 +48,7 @@ export class ContentService {
     return content;
   }
 
-  async deleteById(id: string): Promise<Content> {
+  async deleteContentById(id: string): Promise<Content> {
     return await this.contentModel.findByIdAndDelete(id);
   }
 
@@ -99,7 +99,7 @@ export class ContentService {
       return savedContent;
     } catch (error) {
       throw new BadRequestException(
-        'Failed to create content. Please check your input.',
+        'Failed to create content.',
       );
     }
   }
@@ -107,7 +107,7 @@ export class ContentService {
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);
     if (!isValidId) {
-      throw new BadRequestException('Please provide a valid ID.');
+      throw new BadRequestException('Invalid ID. Please try again.');
     }
     const content = await this.contentModel.findById(id).exec();
     if (!content) {

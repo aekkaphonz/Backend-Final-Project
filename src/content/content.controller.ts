@@ -30,7 +30,7 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get all content' })
   @ApiOkResponse({ type: [GetContentDto] })
-  @Get() //ตอนยิงใช้ URL path http://localhost:3001/contents
+  @Get()
   getAllContent() {
     return this.contentService.findAll();
   }
@@ -53,7 +53,7 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          'Unsupported file type. Please upload a valid image.',
+          'Invalid file type.',
         );
       }
 
@@ -79,15 +79,15 @@ export class ContentController {
     return content;
   }
 
-  @ApiOperation({ summary: 'Delete content' })
-  @ApiOkResponse({ description: 'Delete successfully' })
-  @Delete(':id') 
-  async deleteContent(
-    @Param('id')
-    id: string,
-  ): Promise<Content> {
-    return this.contentService.deleteById(id);
-  }
+   @ApiOperation({ summary: 'Delete Content' })
+    @ApiOkResponse({ description: 'Delete successfully' })
+    @Delete(':id')
+    async deleteContent(
+      @Param('id')
+      id: string,
+    ): Promise<Content> {
+      return this.contentService.deleteContentById(id);
+    }
 
   @ApiOperation({ summary: 'Create content' })
   @ApiOkResponse({ type: GetContentDto })
@@ -101,7 +101,7 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          'Unsupported file type. Please upload a valid image.',
+          'Invalid file type.',
         );
       }
 
