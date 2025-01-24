@@ -84,6 +84,7 @@ export class PostsController {
     return { postCount: count };
   }
 
+
   @Put(':id/view')
   async incrementView(@Param('id') id: string): Promise<PostSchema> {
     return this.postsService.incrementView(id);
@@ -93,6 +94,15 @@ export class PostsController {
   async incrementLike(@Param('id') id: string): Promise<PostSchema> {
     return this.postsService.incrementLike(id);
   }
+
+  @Get('search/:title')
+async searchPostsByTitle(@Param('title') title: string) {
+  const posts = await this.postsService.searchByTitle(title);
+  if (!posts || posts.length === 0) {
+    throw new NotFoundException('No posts found');
+  }
+  return posts;
+}
 
 
 
