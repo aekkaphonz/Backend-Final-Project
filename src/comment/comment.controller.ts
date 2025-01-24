@@ -12,6 +12,8 @@ import {
 import { CommentService } from './comment.service';
 import { GetCommentDto } from './dto/get-comment-dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ApiOperation, ApiOkResponse } from '@nestjs/swagger'; 
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Controller('comments')
 export class CommentController {

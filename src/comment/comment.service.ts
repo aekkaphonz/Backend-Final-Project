@@ -10,7 +10,7 @@ import { PostComment, CommentDocument } from './schemas/comment.schema';
 import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
-import { CreateCommentDto } from './dto/create-comment.dto';
+
 
 @Injectable()
 export class CommentService {
