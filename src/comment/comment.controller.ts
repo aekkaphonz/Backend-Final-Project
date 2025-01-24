@@ -25,7 +25,7 @@ export class CommentController {
   async addComment(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.addComment(createCommentDto);
   }
-
+  
   @ApiOperation({ summary: 'Get comments in content' })
   @ApiOkResponse({ type: [GetCommentDto] })
   @Get('content/:id')

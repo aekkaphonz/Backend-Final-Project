@@ -94,4 +94,11 @@ export class CommentService {
       .exec();
     return comments;
   }
+
+  async updateComment(id: string, updateCommentDto: UpdateCommentDto) {
+    return this.commentModel.findByIdAndUpdate(id, updateCommentDto, { new: true });
+  }  
+
+  
+  
 }
