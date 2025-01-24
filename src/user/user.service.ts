@@ -62,41 +62,40 @@ export class UserService {
   }
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
+    
   }
 
+
   async updateUser(id: string, updateUserDto: Partial<User>) {
-    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
-      new: true,
-    });
-    if (!user) {
+  
+    const existingUser = await this.userModel.findById(id);
+    if (!existingUser) {
       throw new NotFoundException('User not found');
     }
-    return user;
+  
+    
+    if (!updateUserDto.profileImage && existingUser.profileImage) {
+      updateUserDto.profileImage = existingUser.profileImage;
+    }
+  
+    
+    const updatedUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true, 
+    });
+  
+    return updatedUser;
   }
   
 
 
+  async deleteUserById(id: string): Promise<User> {
+    return await this.userModel.findByIdAndDelete(id);
+  }
+
+
+
+
 
   }
-  // async saveImage(
-  //   email: string,
-  //   password: string,
-  //   userName: string,
-  //   gender: string,
-  //   dateOfBirth: string,
-  //   googleId: string,
-  //   profileImage: string,
-  // ): Promise<User> {
-  //   const newImage = new this.userModel({
-  //     email,
-  //     password,
-  //     userName,
-  //     gender,
-  //     dateOfBirth,
-  //     googleId,
-  //     profileImage,
-  //   });
 
-  //   return await newImage.save();
-  // }
 
