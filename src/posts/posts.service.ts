@@ -59,4 +59,10 @@ export class PostsService {
     return this.postModel.find({ userId }).exec();
   }  
 
+  async searchByTitle(title: string): Promise<Post[]> {
+    return this.postModel
+      .find({ title: { $regex: title, $options: 'i' } }) // ใช้ regular expression เพื่อค้นหาแบบ case-insensitive
+      .exec();
+  }  
+
 }
