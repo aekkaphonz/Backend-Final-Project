@@ -69,6 +69,7 @@ export class AuthController {
       return { message: 'Login failed', error: 'No user session found' };
     }
     console.log('User email:', user);
+    req.session.userId = user._id;
     return { message: 'Login successful', user };
   }
 

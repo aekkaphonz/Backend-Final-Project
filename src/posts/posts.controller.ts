@@ -37,25 +37,22 @@ export class PostsController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('images')) // ✅ ตรวจสอบว่ารองรับการรับไฟล์
   async updatePost(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() updatePostDto: UpdatePostDto,
   ) {
+    console.log("รับข้อมูลอัปเดต:", updatePostDto);
+    console.log("ไฟล์ที่อัปโหลด:", file);
+
     if (file) {
       const base64Image = file.buffer.toString('base64');
       const mimeType = file.mimetype;
-
       updatePostDto.images = [`data:${mimeType};base64,${base64Image}`];
     }
 
-    const updatedPost = await this.postsService.update(id, updatePostDto);
-    if (!updatedPost) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
-    }
-
-    return updatedPost;
+    return this.postsService.update(id, updatePostDto);
   }
 
   @Get()
