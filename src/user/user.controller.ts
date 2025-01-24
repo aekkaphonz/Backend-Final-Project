@@ -89,9 +89,9 @@ export class UserController {
 
       updateUserDto.profileImage = `data:${mimeType};base64,${base64Image}`;
     } else {
-      const existingUser = await this.userService.findById(id);
-      if (existingUser && existingUser.profileImage) {
-        updateUserDto.profileImage = existingUser.profileImage;
+      const previousUser = await this.userService.findById(id);
+      if (previousUser && previousUser.profileImage) {
+        updateUserDto.profileImage = previousUser.profileImage;
       }
     }
 
