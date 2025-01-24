@@ -12,6 +12,8 @@ import {
   Req,
   Patch,
   Put,
+  Delete,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -38,31 +40,38 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  // @ApiOperation({ summary: 'Use to check logged-in user profile' })
-  // @ApiOkResponse({ type: GetUserDto })
-  // @Get('profile')
-  // async getLoggedInUserProfile(@Req() req: Request) {
-
-  //   const userId = req.session?.userId;
-  //   if (!userId) {
-  //     throw new Error('User not logged in');
-  //   }
-
-  //   return this.userService.getOneUser(userId);
-  // }
-
   @ApiOperation({ summary: 'Use to check your profile' })
   @ApiOkResponse({ type: [GetUserDto] })
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard)  
   @Get('/profile')
   async getProfile(@Request() req) {
-    const user = await this.userService.findByEmail(req.user.email);
-    return [user];
+    try {
+      const user = await this.userService.findByEmail(req.user.email);
+
+      if (!user) {
+        throw new NotFoundException('User not found.');
+      }
+
+      const populatedUser = await this.userService.getOneUser(
+        user._id.toString(),
+      );
+
+      if (!populatedUser) {
+        throw new NotFoundException('User with content not found.');
+      }
+
+      return [populatedUser];
+    } catch (error) {
+      console.error('Error fetching profile:', error.message);
+      throw new InternalServerErrorException('Failed to fetch profile.');
+    }
   }
+
+
 
   @ApiOperation({ summary: 'Use to check other profile' })
   @ApiOkResponse({ type: [GetUserDto] })
-  @Get(':id') //ตอนยิงใช้ URL path http://localhost:3001/user/:id method Get
+  @Get(':id') 
   async getOneUser(@Param('id') userId: string) {
     return this.userService.getOneUser(userId);
   }
@@ -73,22 +82,29 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
     @Body() updateUserDto: Partial<User>,
-  ) { 
+  ) {
     if (file) {
       const base64Image = file.buffer.toString('base64');
       const mimeType = file.mimetype;
 
-      
       updateUserDto.profileImage = `data:${mimeType};base64,${base64Image}`;
+    } else {
+      const existingUser = await this.userService.findByEmail(id);
+      if (existingUser && existingUser.profileImage) {
+        updateUserDto.profileImage = existingUser.profileImage;
+      }
     }
 
     return this.userService.updateUser(id, updateUserDto);
   }
-
-
+ 
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiOkResponse({ description: 'Delete successfully' })
+  @Delete(':id')
+  async deleteUser(
+    @Param('id')
+    id: string,
+  ): Promise<User> {
+    return this.userService.deleteUserById(id);
+  }
 }
-
-// @Post('/register') //ตอนยิงใช้ URL path http://localhost:3001/user/register method Post
-// create(@Body() registerDto: RegisterDto) {
-//   return this.userService.create(registerDto);
-// }

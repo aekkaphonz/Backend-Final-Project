@@ -1,3 +1,4 @@
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   Controller,
   Post,
@@ -6,10 +7,13 @@ import {
   Put,
   Param,
   Body,
+  UseInterceptors,
+  UploadedFile,
   NotFoundException,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { Post as PostSchema } from './schemas/posts.schemas';
 
 @Controller('posts')
@@ -17,11 +21,43 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) { }
 
   @Post()
-  async createPost(@Body() createPostDto: CreatePostDto, @Body('userId') userId: string) {
-    const postData = { ...createPostDto, userId }; // รวม userId เข้ากับข้อมูลโพสต์
-    return this.postsService.create(postData);
+  @UseInterceptors(FileInterceptor('image'))
+  async createPost(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    if (file) {
+      const base64Image = file.buffer.toString('base64');
+      const mimeType = file.mimetype;
+
+      createPostDto.images = [`data:${mimeType};base64,${base64Image}`];
+    }
+
+    return this.postsService.create(createPostDto);
   }
-  
+
+  @Put(':id')
+  @UseInterceptors(FileInterceptor('image'))
+  async updatePost(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    if (file) {
+      const base64Image = file.buffer.toString('base64');
+      const mimeType = file.mimetype;
+
+      updatePostDto.images = [`data:${mimeType};base64,${base64Image}`];
+    }
+
+    const updatedPost = await this.postsService.update(id, updatePostDto);
+    if (!updatedPost) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+
+    return updatedPost;
+  }
+
   @Get()
   async getAllPosts() {
     return this.postsService.findAll();
@@ -34,15 +70,6 @@ export class PostsController {
       throw new NotFoundException('Post not found');
     }
     return post;
-  }
-
-  @Put(':id') // เพิ่ม endpoint สำหรับการอัปเดตข้อมูล
-  async updatePost(@Param('id') id: string, @Body() updateData: Partial<CreatePostDto>) {
-    const updatedPost = await this.postsService.update(id, updateData);
-    if (!updatedPost) {
-      throw new NotFoundException('Post not found');
-    }
-    return updatedPost;
   }
 
   @Delete(':id') // เพิ่มการลบข้อมูล
@@ -79,6 +106,7 @@ async searchPostsByTitle(@Param('title') title: string) {
   }
   return posts;
 }
+
 
 
 }

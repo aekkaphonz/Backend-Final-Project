@@ -17,7 +17,7 @@ export class GetContentDto {
   description: string;
 
   @ApiProperty()
-  image: string;
+  postImage: string;
 
   @ApiProperty()
   comment: [];

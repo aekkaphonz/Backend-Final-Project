@@ -24,10 +24,10 @@ export class Post extends Document {
   @Prop({ required: true })
   createdAt: Date;
 
-  @Prop()
+  @Prop({ type: [String] })
   images: string[];
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   userId: string;
 }
 
