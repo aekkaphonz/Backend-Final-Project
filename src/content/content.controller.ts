@@ -11,6 +11,7 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  Query
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
@@ -26,13 +27,16 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('contents')
 export class ContentController {
-  constructor(private readonly contentService: ContentService) {}
+  constructor(private readonly contentService: ContentService) { }
 
-  @ApiOperation({ summary: 'Get all content' })
+  @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
   @Get()
-  getAllContent() {
-    return this.contentService.findAll();
+  async getAllContent(@Query('userId') userId: string) {
+    if (!userId) {
+      throw new BadRequestException('UserId is required');
+    }
+    return this.contentService.findAllByUserId(userId);
   }
 
   @ApiOperation({ summary: 'Update content' })
@@ -44,8 +48,8 @@ export class ContentController {
     @Param('id') id: string,
     @Body() updateContentDto: Partial<CreateContentDto>,
   ) {
-    const previousContent  = await this.contentService.findById(id);
-    if (!previousContent ) {
+    const previousContent = await this.contentService.findById(id);
+    if (!previousContent) {
       throw new NotFoundException('Content not found');
     }
 
@@ -61,8 +65,8 @@ export class ContentController {
       const mimeType = file.mimetype;
       updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
     } else if (!updateContentDto.postImage) {
-      
-      updateContentDto.postImage = previousContent .postImage;
+
+      updateContentDto.postImage = previousContent.postImage;
     }
 
     return this.contentService.updateContent(id, updateContentDto);
@@ -70,7 +74,7 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get detail content & comment' })
   @ApiOkResponse({ type: [GetContentDto] })
-  @Get('detail/:id') 
+  @Get('detail/:id')
   async getContent(@Param('id') contentId: string) {
     const content = await this.contentService.getContentWithComments(contentId);
     if (!content) {
@@ -79,15 +83,15 @@ export class ContentController {
     return content;
   }
 
-   @ApiOperation({ summary: 'Delete Content' })
-    @ApiOkResponse({ description: 'Delete successfully' })
-    @Delete(':id')
-    async deleteContent(
-      @Param('id')
-      id: string,
-    ): Promise<Content> {
-      return this.contentService.deleteContentById(id);
-    }
+  @ApiOperation({ summary: 'Delete content' })
+  @ApiOkResponse({ description: 'Delete successfully' })
+  @Delete(':id')
+  async deleteContent(
+    @Param('id')
+    id: string,
+  ): Promise<Content> {
+    return this.contentService.deleteContentById(id);
+  }
 
   @ApiOperation({ summary: 'Create content' })
   @ApiOkResponse({ type: GetContentDto })
