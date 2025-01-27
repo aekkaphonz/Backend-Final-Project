@@ -46,9 +46,8 @@ export class ContentController {
   @ApiOperation({ summary: 'Get all contents with userName' })
   @Get('all')
   async getAllContents() {
-    const posts = await this.contentService.findAll(); // ดึงบทความทั้งหมด
-    const users = await this.userService.findAll(); // ดึงข้อมูลผู้ใช้ทั้งหมด
-
+    const posts = await this.contentService.findAll(); 
+    const users = await this.userService.findAll(); 
     const combinedData = posts.map((post) => {
       const user = users.find((u: any) => u._id?.toString() === post.userId?.toString());
       return { ...post, userName: user?.userName || 'Unknown' };
