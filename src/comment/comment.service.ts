@@ -18,7 +18,7 @@ export class CommentService {
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
     @InjectModel(Content.name)
-    private readonly contentModel: Model<ContentDocument>,
+    private readonly contentModel: Model<ContentDocument>, 
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
@@ -75,7 +75,7 @@ export class CommentService {
     await this.contentModel.findByIdAndUpdate(
       postId,
       { $push: { comments: savedComment._id } },
-      { new: true, upsert: true },
+      { new: true, upsert: true }, 
     );
 
     return savedComment;
@@ -88,11 +88,4 @@ export class CommentService {
       .exec();
     return comments;
   }
-
-  async updateComment(id: string, updateCommentDto: UpdateCommentDto) {
-    return this.commentModel.findByIdAndUpdate(id, updateCommentDto, { new: true });
-  }  
-
-  
-  
 }
