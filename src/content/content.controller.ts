@@ -11,6 +11,7 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  Query
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
@@ -30,9 +31,20 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get all content' })
   @ApiOkResponse({ type: [GetContentDto] })
-  @Get()
-  getAllContent() {
+  @Get('all')
+  fetchAllContents() {
     return this.contentService.findAll();
+  }
+
+  
+  @ApiOperation({ summary: 'Get all content for specific user' })
+  @ApiOkResponse({ type: [GetContentDto] })
+  @Get()
+  async getAllContent(@Query('userId') userId: string) {
+    if (!userId) {
+      throw new BadRequestException('UserId is required');
+    }
+    return this.contentService.findAllByUserId(userId);
   }
 
   @ApiOperation({ summary: 'Update content' })

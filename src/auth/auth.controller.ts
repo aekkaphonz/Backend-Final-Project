@@ -8,6 +8,8 @@ import {
   Session,
   Body,
   Response,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -65,9 +67,14 @@ export class AuthController {
   @Post('login')
   async login(@Request() req) {
     const user = req.session.user;
+
     if (!user) {
-      return { message: 'Login failed', error: 'No user session found' };
+      throw new HttpException(
+        { message: 'Login failed', error: 'No user session found' },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
+
     console.log('User email:', user);
     return { message: 'Login successful', user };
   }
