@@ -57,7 +57,7 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          'Unsupported file type. Please upload a valid image.',
+          'Invalid file type.',
         );
       }
 
@@ -90,7 +90,7 @@ export class ContentController {
     @Param('id')
     id: string,
   ): Promise<Content> {
-    return this.contentService.deleteById(id);
+    return this.contentService.deleteContentById(id);
   }
 
   @ApiOperation({ summary: 'Create content' })
@@ -105,7 +105,7 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          'Unsupported file type. Please upload a valid image.',
+          'Invalid file type.',
         );
       }
 
