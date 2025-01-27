@@ -24,10 +24,14 @@ import {
 import { GetContentDto } from './dto/get-content.dto';
 import { CreateContentDto } from './dto/create-content.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserService } from "src/user/user.service"; 
 
 @Controller('contents')
 export class ContentController {
-  constructor(private readonly contentService: ContentService) { }
+  constructor(
+    private readonly contentService: ContentService,
+    private readonly userService: UserService,
+  ) { }
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
@@ -39,10 +43,19 @@ export class ContentController {
     return this.contentService.findAllByUserId(userId);
   }
 
+  @ApiOperation({ summary: 'Get all contents with userName' })
   @Get('all')
   async getAllContents() {
-    return this.contentService.findAll(); // ดึงบทความทั้งหมด
-  } 
+    const posts = await this.contentService.findAll(); // ดึงบทความทั้งหมด
+    const users = await this.userService.findAll(); // ดึงข้อมูลผู้ใช้ทั้งหมด
+
+    const combinedData = posts.map((post) => {
+      const user = users.find((u: any) => u._id?.toString() === post.userId?.toString());
+      return { ...post, userName: user?.userName || 'Unknown' };
+    });
+
+    return combinedData;
+  }
 
   @ApiOperation({ summary: 'Update content' })
   @ApiOkResponse({ type: GetContentDto })
@@ -129,4 +142,6 @@ export class ContentController {
   async getContentById(@Param('id') id: string): Promise<Content> {
     return this.contentService.findById(id);
   }
+
+  
 }
