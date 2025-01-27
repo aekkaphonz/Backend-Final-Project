@@ -39,6 +39,11 @@ export class ContentController {
     return this.contentService.findAllByUserId(userId);
   }
 
+  @Get('all')
+  async getAllContents() {
+    return this.contentService.findAll(); // ดึงบทความทั้งหมด
+  }
+
   @ApiOperation({ summary: 'Update content' })
   @ApiOkResponse({ type: GetContentDto })
   @Put('updateContent/:id')
