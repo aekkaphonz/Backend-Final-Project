@@ -17,12 +17,6 @@ export class PostComment {
 
   @Prop({ required: true })
   comment: string;
-
-  //   @Prop({ default: Date.now })
-  //   commentCreatedAt: Date;
-
-  //   @Prop({ default: Date.now })
-  //   commentUpdatedAt: Date;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(PostComment);

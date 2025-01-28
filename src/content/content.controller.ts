@@ -35,25 +35,22 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
+
+  @Get('all')
+  fetchAllContents() {
+    return this.contentService.findAll();
+
+  }
+
+  
+  @ApiOperation({ summary: 'Get all content for specific user' })
+  @ApiOkResponse({ type: [GetContentDto] })
   @Get()
   async getAllContent(@Query('userId') userId: string) {
     if (!userId) {
       throw new BadRequestException('UserId is required');
     }
     return this.contentService.findAllByUserId(userId);
-  }
-
-  @ApiOperation({ summary: 'Get all contents with userName' })
-  @Get('all')
-  async getAllContents() {
-    const posts = await this.contentService.findAll(); 
-    const users = await this.userService.findAll(); 
-    const combinedData = posts.map((post) => {
-      const user = users.find((u: any) => u._id?.toString() === post.userId?.toString());
-      return { ...post, userName: user?.userName || 'Unknown' };
-    });
-
-    return combinedData;
   }
 
   @ApiOperation({ summary: 'Update content' })
