@@ -10,6 +10,9 @@ export class CreateCommentDto {
   @ApiProperty({ description: 'Post id ', example: '678dccaf5cd2a561efb02d45' })
    postId?: Types.ObjectId;
 
+   @ApiProperty({ description: 'Your name', example: 'JohnDoe' })  // ✅ เพิ่ม userName
+  @IsString()
+  userName?: string;
 
   @ApiProperty({
     description: 'The comment text',

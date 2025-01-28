@@ -17,6 +17,9 @@ export class PostComment {
 
   @Prop({ required: true })
   comment: string;
+
+  @Prop({ required: true })  // เพิ่ม userName เพื่อให้ถูกบันทึก
+  userName: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(PostComment);
