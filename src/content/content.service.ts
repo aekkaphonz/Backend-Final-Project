@@ -30,6 +30,13 @@ export class ContentService {
     return newContent.save();
   }
 
+  async findAllByUserId(userId: string): Promise<Content[]> {
+    console.log("👉 userId in findAllByUserId:", userId); // Debug userId
+    const contents = await this.contentModel.find({ userId }).exec();
+    console.log("✅ Found contents:", contents); // Debug ผลลัพธ์ที่ดึงได้
+    return contents;
+  }   
+
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
