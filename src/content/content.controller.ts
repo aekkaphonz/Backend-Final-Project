@@ -42,7 +42,7 @@ export class ContentController {
   @Get('all')
   async getAllContents() {
     return this.contentService.findAll(); // ดึงบทความทั้งหมด
-  } 
+  }
 
   @ApiOperation({ summary: 'Update content' })
   @ApiOkResponse({ type: GetContentDto })
@@ -129,4 +129,10 @@ export class ContentController {
   async getContentById(@Param('id') id: string): Promise<Content> {
     return this.contentService.findById(id);
   }
+
+  @Post('updateViews/:id')
+  async updateViews(@Param('id') id: string) {
+    return this.contentService.updateViews(id);
+  }
+
 }

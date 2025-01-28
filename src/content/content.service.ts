@@ -22,7 +22,7 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
   async create(contentDto: CreateContentDto): Promise<Content> {
     const newContent = new this.contentModel(contentDto);
@@ -35,7 +35,7 @@ export class ContentService {
     const contents = await this.contentModel.find({ userId }).exec();
     console.log("✅ Found contents:", contents); // Debug ผลลัพธ์ที่ดึงได้
     return contents;
-  }   
+  }
 
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
@@ -123,4 +123,14 @@ export class ContentService {
 
     return content;
   }
+
+  async updateViews(id: string): Promise<any> {
+    const content = await this.contentModel.findById(id);
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+    content.views = (content.views || 0) + 1; // ตรวจสอบ `views` ให้แน่ใจว่าเป็นตัวเลขก่อนเพิ่ม
+    return content.save();
+  }
+
 }
