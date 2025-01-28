@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { ContentModule } from './content/content.module';
 import { CommentModule } from './comment/comment.module';
 import { PostsModule } from './posts/posts.module';
+import { ViewModule } from './view/view.module';
 
 
 @Module({
@@ -26,6 +27,7 @@ import { PostsModule } from './posts/posts.module';
     ContentModule,
     CommentModule,
     PostsModule,
+    ViewModule,
 
   ],
   controllers: [AppController],
