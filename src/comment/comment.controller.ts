@@ -77,7 +77,15 @@ export class CommentController {
     return this.commentService.updateById(id, updateCommentDto);
   }
 
+  @Get('commentReply/:id')
+  async getCommentWithReplies(@Param('id') id: string) {
+    const comment = await this.commentService.getCommentWithReplies(id);
 
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    return comment;
+  }
   
 
 }

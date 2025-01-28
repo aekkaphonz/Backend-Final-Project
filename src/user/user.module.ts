@@ -5,12 +5,13 @@ import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ContentModule } from 'src/content/content.module';
+import { ReplyModule } from 'src/reply/reply.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    forwardRef(() => ContentModule), 
-   
+    forwardRef(() => ContentModule),
+    forwardRef(() => ReplyModule),
   ],
   controllers: [UserController],
   providers: [UserService],

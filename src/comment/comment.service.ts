@@ -11,6 +11,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { commentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
 
 @Injectable()
 export class CommentService {
@@ -20,6 +21,8 @@ export class CommentService {
     @InjectModel(Content.name)
     private readonly contentModel: Model<ContentDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(commentReply.name)
+    private readonly replyModel: Model<ReplyDocument>,
   ) {}
 
   findAll(): Promise<PostComment[]> {
@@ -54,10 +57,6 @@ export class CommentService {
     return updatedComment;
   }
 
-  // async deleteById(id: string): Promise<Comment> {
-  //   return await this.commentModel.findByIdAndDelete(id);
-  // }
-
   async deleteById(id: string): Promise<PostComment> {
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException(`Invalid comment ID: ${id}`);
@@ -88,6 +87,10 @@ export class CommentService {
       throw new BadRequestException('Invalid userId format.');
     }
 
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
     const newComment = new this.commentModel(createCommentDto);
     const savedComment = await newComment.save();
 
@@ -108,5 +111,18 @@ export class CommentService {
       .populate('userId', 'userName')
       .exec();
     return comments;
+  }
+
+  async getCommentWithReplies(commentId: string) {
+    const comment = await this.commentModel
+      .findById(commentId)
+      .populate({
+        path: 'reply',
+        model: this.replyModel,
+        populate: { path: 'userId', select: 'userName' },
+      })
+      .populate('userId', 'userName');
+
+    return comment;
   }
 }
