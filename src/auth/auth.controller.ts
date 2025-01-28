@@ -50,7 +50,7 @@ export class AuthController {
     type: RegisterResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad payload sent' })
-  @Post('/register') //ตอนยิงใช้ URL path http://localhost:3001/auth/register method Post
+  @Post('/register')
   create(@Body() registerDto: RegisterDto) {
     console.log('Received Data:', registerDto);
     return this.authService.create(registerDto);
@@ -66,17 +66,16 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    const user = req.session.user;
-
-    if (!user) {
+    if (!req.user) {
       throw new HttpException(
-        { message: 'Login failed', error: 'No user session found' },
+        { message: 'Login failed', error: 'Invalid credentials' },
         HttpStatus.UNAUTHORIZED,
       );
-    }
+    } 
 
-    console.log('User email:', user);
-    return { message: 'Login successful', user };
+    req.session.user = req.user;
+
+    return { message: 'Login successful', user: req.user };
   }
 
   @ApiOperation({ summary: 'Use to check auth' })
