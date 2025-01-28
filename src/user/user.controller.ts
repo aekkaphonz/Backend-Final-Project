@@ -35,7 +35,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Get all user' })
   @ApiOkResponse({ type: [GetUserDto] })
-  @Get() //ตอนยิงใช้ URL path http://localhost:3001/user method Get
+  @Get() 
   getAllUsers() {
     return this.userService.findAll();
   }
@@ -87,9 +87,9 @@ export class UserController {
 
       updateUserDto.profileImage = `data:${mimeType};base64,${base64Image}`;
     } else {
-      const existingUser = await this.userService.findByEmail(id);
-      if (existingUser && existingUser.profileImage) {
-        updateUserDto.profileImage = existingUser.profileImage;
+      const previousUser = await this.userService.findById(id);
+      if (previousUser && previousUser.profileImage) {
+        updateUserDto.profileImage = previousUser.profileImage;
       }
     }
 

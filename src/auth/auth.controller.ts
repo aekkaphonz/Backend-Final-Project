@@ -8,6 +8,8 @@ import {
   Session,
   Body,
   Response,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -48,7 +50,7 @@ export class AuthController {
     type: RegisterResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad payload sent' })
-  @Post('/register') //ตอนยิงใช้ URL path http://localhost:3001/auth/register method Post
+  @Post('/register')
   create(@Body() registerDto: RegisterDto) {
     console.log('Received Data:', registerDto);
     return this.authService.create(registerDto);
@@ -64,12 +66,18 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    const user = req.session.user;
-    if (!user) {
-      return { message: 'Login failed', error: 'No user session found' };
-    }
-    console.log('User email:', user);
-    return { message: 'Login successful', user };
+
+    if (!req.user) {
+      throw new HttpException(
+        { message: 'Login failed', error: 'Invalid credentials' },
+        HttpStatus.UNAUTHORIZED,
+      );
+    } 
+
+    req.session.user = req.user;
+
+    return { message: 'Login successful', user: req.user };
+
   }
 
   @ApiOperation({ summary: 'Use to check auth' })
