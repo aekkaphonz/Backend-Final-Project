@@ -46,12 +46,18 @@ export class CommentService {
     id: string,
     updateCommentDto: UpdateCommentDto,
   ): Promise<PostComment> {
+    const { userId, postId } = updateCommentDto;
     const updatedComment = await this.commentModel
       .findByIdAndUpdate(id, updateCommentDto, { new: true })
       .exec();
 
-    if (!updatedComment) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+    const post = await this.userModel.findById(postId).exec();
+    if (!post) {
+      throw new BadRequestException('Post not found.');
     }
 
     return updatedComment;
@@ -90,6 +96,10 @@ export class CommentService {
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
       throw new BadRequestException('User not found.');
+    }
+    const post = await this.contentModel.findById(postId).exec();
+    if (!post) {
+      throw new BadRequestException('Post not found.');
     }
     const newComment = new this.commentModel(createCommentDto);
     const savedComment = await newComment.save();

@@ -77,7 +77,7 @@ export class CommentController {
     return this.commentService.updateById(id, updateCommentDto);
   }
 
-  @Get('commentReply/:id')
+  @Get('CommentWithReply/:id')
   async getCommentWithReplies(@Param('id') id: string) {
     const comment = await this.commentService.getCommentWithReplies(id);
 

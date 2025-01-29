@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   NotFoundException,
+  Put,
 } from '@nestjs/common';
 import { ReplyService } from './reply.service';
 import { CreateReplyDto } from './dto/create-reply.dto';
@@ -23,6 +24,12 @@ export class ReplyController {
   getAllComment() {
     return this.replyService.findAll();
   }
+
+   @ApiOperation({ summary: 'Get CommentById' })
+    @Get(':id')
+    async getComment(@Param('id') id: string) {
+      return this.replyService.findById(id);
+    }
 
   @Post('addReply')
   async addReply(
@@ -44,4 +51,13 @@ export class ReplyController {
     }
     return { message: 'delete successful' };
   }
+
+   @ApiOperation({ summary: 'Edit Comment' })
+    @Put(':id')
+    async updateComment(
+      @Param('id') id: string,
+      @Body() updateReplyDto: UpdateReplyDto,
+    ) {
+      return this.replyService.updateById(id, updateReplyDto);
+    }
 }
