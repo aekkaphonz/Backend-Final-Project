@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,7 +23,7 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) { }
+  ) {}
 
   async create(contentDto: CreateContentDto): Promise<Content> {
     const newContent = new this.contentModel(contentDto);

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { commentReply } from 'src/reply/schemas/reply.schema';
 
 export type CommentDocument = PostComment & Document;
 
@@ -14,12 +15,18 @@ export class PostComment {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: string;
+  
+  @Prop()
+  userName: string;
+
 
   @Prop({ required: true })
   comment: string;
 
-  @Prop({ required: true })  // เพิ่ม userName เพื่อให้ถูกบันทึก
-  userName: string;
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply' }] })
+  reply : commentReply[]  
+
+
 }
 
 export const CommentSchema = SchemaFactory.createForClass(PostComment);
