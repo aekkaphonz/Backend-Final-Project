@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import {
   CommentDocument,
@@ -25,10 +25,31 @@ export class ContentService {
     private readonly commentModel: Model<CommentDocument>,
   ) {}
 
-  async create(contentDto: CreateContentDto): Promise<Content> {
-    const newContent = new this.contentModel(contentDto);
-    console.log(newContent);
-    return newContent.save();
+  async create(createContentDto: CreateContentDto): Promise<Content> {
+    const { userId, title, detail, description, comments, postImage } =
+      createContentDto;
+
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new BadRequestException('Invalid userId format.');
+    }
+
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+    const newContent = new this.contentModel({
+      userId,
+      title,
+      detail,
+      description,
+      comments,
+      postImage,
+      userName: user.userName,
+    });
+
+    const saveContent = await newContent.save();
+
+    return saveContent
   }
 
   async findAllByUserId(userId: string): Promise<Content[]> {
@@ -87,32 +108,35 @@ export class ContentService {
   async createContent(createContentDto: CreateContentDto): Promise<Content> {
     const { userId, title, detail, description, postImage } = createContentDto;
 
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
     const newContent = new this.contentModel({
       userId,
       title,
       detail,
       description,
       postImage,
+      userName: user.userName, 
     });
 
     try {
       const savedContent = await newContent.save();
 
-      const user = await this.userModel.findByIdAndUpdate(
+      await this.userModel.findByIdAndUpdate(
         userId,
         { $push: { content: savedContent._id } },
         { new: true },
       );
 
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
       return savedContent;
     } catch (error) {
       throw new BadRequestException('Failed to create content.');
     }
-  }
+}
+
 
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);
