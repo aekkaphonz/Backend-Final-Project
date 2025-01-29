@@ -8,6 +8,7 @@ import {
   Delete,
   NotFoundException,
   Put,
+  Req,
 } from '@nestjs/common';
 import { ReplyService } from './reply.service';
 import { CreateReplyDto } from './dto/create-reply.dto';
@@ -57,7 +58,8 @@ export class ReplyController {
     async updateComment(
       @Param('id') id: string,
       @Body() updateReplyDto: UpdateReplyDto,
+      @Req() req: any,
     ) {
-      return this.replyService.updateById(id, updateReplyDto);
+      return this.replyService.updateById(id, updateReplyDto,req.user);
     }
 }

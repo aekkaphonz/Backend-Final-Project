@@ -66,18 +66,16 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-
     if (!req.user) {
       throw new HttpException(
-        { message: 'Login failed', error: 'Invalid credentials' },
+        { message: 'Login failed'},
         HttpStatus.UNAUTHORIZED,
       );
-    } 
+    }
 
     req.session.user = req.user;
 
     return { message: 'Login successful', user: req.user };
-
   }
 
   @ApiOperation({ summary: 'Use to check auth' })

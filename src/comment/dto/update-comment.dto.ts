@@ -7,7 +7,9 @@ export class UpdateCommentDto {
   @ApiProperty({ description: 'Post id ', example: '678dccaf5cd2a561efb02d45' })
   postId?: Types.ObjectId;
 
-
+  @ApiProperty({ description: 'Your name', example: 'Admin' })
+  userName: string;
+  
   @ApiProperty({ description: 'Your comment ', example: 'Edit comment' })
   comment: string;
 }

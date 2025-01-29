@@ -15,6 +15,10 @@ export class PostComment {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: string;
+  
+  @Prop()
+  userName: string;
+
 
   @Prop({ required: true })
   comment: string;
@@ -22,8 +26,6 @@ export class PostComment {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply' }] })
   reply : commentReply[]  
 
-  @Prop({ required: true })  // เพิ่ม userName เพื่อให้ถูกบันทึก
-  userName: string;
 
 }
 

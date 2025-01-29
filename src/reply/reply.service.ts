@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateReplyDto } from './dto/create-reply.dto';
 import { UpdateReplyDto } from './dto/update-reply.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -58,59 +63,56 @@ export class ReplyService {
   }
 
   async deleteById(id: string): Promise<commentReply> {
-      if (!Types.ObjectId.isValid(id)) {
-        throw new NotFoundException(`Invalid comment ID: ${id}`);
-      }
-  
-      const deletedReply = await this.replyModel.findByIdAndDelete(id).exec();
-      if (!deletedReply) {
-        throw new NotFoundException(`Comment with ID ${id} not found`);
-      }
-      await this.commentModel
-        .findOneAndUpdate(
-          { reply: id },
-          { $pull: { reply: id } },
-          { new: true },
-        )
-        .exec();
-  
-      return deletedReply;
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException(`Invalid comment ID: ${id}`);
     }
 
-    async updateById(
-        id: string,
-        updateReplyDto: UpdateReplyDto,
-      ): Promise<commentReply> {
-        const { userId ,commentId } = updateReplyDto;
-        const updatedCommentReply = await this.replyModel
-          .findByIdAndUpdate(id, updateReplyDto, { new: true })
-          .exec();
-    
-        const user = await this.userModel.findById(userId).exec();
-        if (!user) {
-          throw new BadRequestException('User not found.');
-        }
-        const comment = await this.commentModel.findById(commentId).exec();
-        if (!comment) {
-          throw new BadRequestException('comment not found.');
-        }
-       
-    
-        return updatedCommentReply;
-      }
+    const deletedReply = await this.replyModel.findByIdAndDelete(id).exec();
+    if (!deletedReply) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+    await this.commentModel
+      .findOneAndUpdate({ reply: id }, { $pull: { reply: id } }, { new: true })
+      .exec();
 
-      
-        async findById(id: string): Promise<commentReply> {
-          const isValidId = mongoose.isValidObjectId(id);
-          if (!isValidId) {
-            throw new BadRequestException('please enter correct id.');
-          }
-      
-          const reply = await this.replyModel.findById(id).exec();
-          if (!reply) {
-            throw new NotFoundException('Comment not found');
-          }
-          return reply;
-        }
-  
+    return deletedReply;
+  }
+
+  async updateById(
+    id: string,
+    updateReplyDto: UpdateReplyDto,
+    user: { userId: string },
+  ): Promise<commentReply> {
+    const { commentId } = updateReplyDto;
+
+    const userReply = await this.replyModel.findById(id).exec();
+    if (!userReply) {
+      throw new BadRequestException('Reply not found.');
+    }
+    if (userReply.userId.toString() !== user.userId.toString()) {
+      throw new ForbiddenException('You are not allowed to edit this reply.');
+    }
+    const comment = await this.commentModel.findById(commentId).exec();
+    if (!comment) {
+      throw new BadRequestException('comment not found.');
+    }
+    const updatedCommentReply = await this.replyModel
+      .findByIdAndUpdate(id, updateReplyDto, { new: true })
+      .exec();
+
+    return updatedCommentReply;
+  }
+
+  async findById(id: string): Promise<commentReply> {
+    const isValidId = mongoose.isValidObjectId(id);
+    if (!isValidId) {
+      throw new BadRequestException('please enter correct id.');
+    }
+
+    const reply = await this.replyModel.findById(id).exec();
+    if (!reply) {
+      throw new NotFoundException('Comment not found');
+    }
+    return reply;
+  }
 }

@@ -1,4 +1,16 @@
-import {Controller,Get,Post,Body,Patch,Param,Delete,NotFoundException,Put,} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  NotFoundException,
+  Put,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -33,13 +45,18 @@ export class CommentController {
   @ApiOkResponse({ description: 'Delete successfully' })
   @Delete(':id')
   async deleteComment(
-    @Param('id')
-    id: string,
+    @Param('id') id: string,
+    @Req() req: any,
   ): Promise<{ message: string }> {
-    const deletedComment = await this.commentService.deleteById(id);
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('User is not authenticated.');
+    }
+
+    const deletedComment = await this.commentService.deleteById(id, req.user);
     if (!deletedComment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
+
     return { message: 'delete successful' };
   }
 
@@ -63,8 +80,13 @@ export class CommentController {
   async updateComment(
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: any,
   ) {
-    return this.commentService.updateById(id, updateCommentDto);
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('User is not authenticated.');
+    }
+    console.log('Request User:', req.user);
+    return this.commentService.updateById(id, updateCommentDto, req.user);
   }
 
   @Get('CommentWithReply/:id')
@@ -76,7 +98,4 @@ export class CommentController {
     }
     return comment;
   }
-  
-
 }
-
