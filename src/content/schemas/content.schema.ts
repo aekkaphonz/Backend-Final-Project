@@ -27,6 +27,9 @@ export class Content {
   @Prop({ type: [String], default: [] })
   views: string[];
 
+  @Prop({ type: [String], default: [] })
+  tags: string[];
+
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);

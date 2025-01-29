@@ -32,9 +32,9 @@ export class ContentService {
   }
 
   async findAllByUserId(userId: string): Promise<Content[]> {
-    console.log(' userId in findAllByUserId:', userId);
+    console.log(" userId in findAllByUserId:", userId);
     const contents = await this.contentModel.find({ userId }).exec();
-    console.log(' Found contents:', contents);
+    console.log(" Found contents:", contents);
     return contents;
   }
 
@@ -42,22 +42,45 @@ export class ContentService {
     return this.contentModel.find().exec();
   }
 
-  async updateContent(
-    id: string,
-    updateContentDto: CreateContentDto,
-  ): Promise<Content> {
-    const content = await this.contentModel.findByIdAndUpdate(
-      id,
-      updateContentDto,
-      {
-        new: true,
-      },
-    );
+  async createContent(createContentDto: CreateContentDto): Promise<Content> {
+    let { userId, title, detail, postImage, tags } = createContentDto;
+
+    if (!Array.isArray(tags)) {
+      tags = typeof tags === "string" ? [tags] : [];
+    }
+
+    const newContent = new this.contentModel({
+      userId,
+      title,
+      detail,
+      postImage,
+      tags,
+    });
+
+    return await newContent.save();
+  }
+
+  async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
+    const content = await this.contentModel.findById(id);
     if (!content) {
       throw new NotFoundException('Content not found');
     }
 
-    return content;
+    if (updateContentDto.tags) {
+      try {
+        updateContentDto.tags = typeof updateContentDto.tags === 'string'
+          ? JSON.parse(updateContentDto.tags)
+          : updateContentDto.tags;
+
+        if (!Array.isArray(updateContentDto.tags)) {
+          throw new BadRequestException('Tags must be an array.');
+        }
+      } catch (error) {
+        throw new BadRequestException('Invalid tags format.');
+      }
+    }
+
+    return await this.contentModel.findByIdAndUpdate(id, updateContentDto, { new: true });
   }
 
   async deleteContentById(id: string): Promise<Content> {
@@ -84,36 +107,6 @@ export class ContentService {
     return contentWithComments;
   }
 
-  async createContent(createContentDto: CreateContentDto): Promise<Content> {
-    const { userId, title, detail, description, postImage } = createContentDto;
-
-    const newContent = new this.contentModel({
-      userId,
-      title,
-      detail,
-      description,
-      postImage,
-    });
-
-    try {
-      const savedContent = await newContent.save();
-
-      const user = await this.userModel.findByIdAndUpdate(
-        userId,
-        { $push: { content: savedContent._id } },
-        { new: true },
-      );
-
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
-      return savedContent;
-    } catch (error) {
-      throw new BadRequestException('Failed to create content.');
-    }
-  }
-
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);
     if (!isValidId) {
@@ -138,4 +131,6 @@ export class ContentService {
     }
     return content;
   }
+
+
 }
