@@ -62,9 +62,19 @@ export class ReplyService {
     return saveReply;
   }
 
-  async deleteById(id: string): Promise<commentReply> {
+  async deleteById(
+    id: string,
+    user: { userId: string },
+  ): Promise<commentReply> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new NotFoundException(`Invalid comment ID: ${id}`);
+      throw new NotFoundException(`Invalid reply ID: ${id}`);
+    }
+    const userReply = await this.replyModel.findById(id).exec();
+    if (!userReply) {
+      throw new BadRequestException('Reply not found.');
+    }
+    if (userReply.userId.toString() !== user.userId.toString()) {
+      throw new ForbiddenException('You are not allowed to delete this reply.');
     }
 
     const deletedReply = await this.replyModel.findByIdAndDelete(id).exec();
@@ -94,7 +104,7 @@ export class ReplyService {
     }
     const comment = await this.commentModel.findById(commentId).exec();
     if (!comment) {
-      throw new BadRequestException('comment not found.');
+      throw new BadRequestException('Comment not found.');
     }
     const updatedCommentReply = await this.replyModel
       .findByIdAndUpdate(id, updateReplyDto, { new: true })

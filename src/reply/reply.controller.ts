@@ -9,6 +9,7 @@ import {
   NotFoundException,
   Put,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ReplyService } from './reply.service';
 import { CreateReplyDto } from './dto/create-reply.dto';
@@ -45,8 +46,12 @@ export class ReplyController {
   async deleteComment(
     @Param('id')
     id: string,
+    @Req() req: any,
   ): Promise<{ message: string }> {
-    const deletedReply = await this.replyService.deleteById(id);
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('User is not authenticated.');
+    }
+    const deletedReply = await this.replyService.deleteById(id,req.user);
     if (!deletedReply) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
@@ -60,6 +65,9 @@ export class ReplyController {
       @Body() updateReplyDto: UpdateReplyDto,
       @Req() req: any,
     ) {
+       if (!req.user || !req.user.userId) {
+            throw new UnauthorizedException('User is not authenticated.');
+          }
       return this.replyService.updateById(id, updateReplyDto,req.user);
     }
 }
