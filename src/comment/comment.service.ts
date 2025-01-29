@@ -11,6 +11,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { commentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
 
 @Injectable()
 export class CommentService {
@@ -20,6 +21,8 @@ export class CommentService {
     @InjectModel(Content.name)
     private readonly contentModel: Model<ContentDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(commentReply.name)
+    private readonly replyModel: Model<ReplyDocument>,
   ) {}
 
   findAll(): Promise<PostComment[]> {
@@ -43,20 +46,22 @@ export class CommentService {
     id: string,
     updateCommentDto: UpdateCommentDto,
   ): Promise<PostComment> {
+    const { userId, postId } = updateCommentDto;
     const updatedComment = await this.commentModel
       .findByIdAndUpdate(id, updateCommentDto, { new: true })
       .exec();
 
-    if (!updatedComment) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+    const post = await this.userModel.findById(postId).exec();
+    if (!post) {
+      throw new BadRequestException('Post not found.');
     }
 
     return updatedComment;
   }
-
-  // async deleteById(id: string): Promise<Comment> {
-  //   return await this.commentModel.findByIdAndDelete(id);
-  // }
 
   async deleteById(id: string): Promise<PostComment> {
     if (!Types.ObjectId.isValid(id)) {
@@ -88,11 +93,24 @@ export class CommentService {
     throw new BadRequestException('Invalid userId format.');
   }
 
+
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+    const post = await this.contentModel.findById(postId).exec();
+    if (!post) {
+      throw new BadRequestException('Post not found.');
+    }
+    const newComment = new this.commentModel(createCommentDto);
+    const savedComment = await newComment.save();
+
   // ✅ ดึง userName จากฐานข้อมูล
-  const user = await this.userModel.findById(userId).select('userName').exec();
-  if (!user) {
+  const userName = await this.userModel.findById(userId).select('userName').exec();
+  if (!userName) {
     throw new NotFoundException(`User with ID ${userId} not found`);
   }
+
 
   const newComment = new this.commentModel({
     postId,
@@ -121,5 +139,18 @@ export class CommentService {
       .populate('userId', 'userName')
       .exec();
     return comments;
+  }
+
+  async getCommentWithReplies(commentId: string) {
+    const comment = await this.commentModel
+      .findById(commentId)
+      .populate({
+        path: 'reply',
+        model: this.replyModel,
+        populate: { path: 'userId', select: 'userName' },
+      })
+      .populate('userId', 'userName');
+
+    return comment;
   }
 }
