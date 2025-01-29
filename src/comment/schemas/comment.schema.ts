@@ -21,6 +21,10 @@ export class PostComment {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply' }] })
   reply : commentReply[]  
+
+  @Prop({ required: true })  // เพิ่ม userName เพื่อให้ถูกบันทึก
+  userName: string;
+
 }
 
 export const CommentSchema = SchemaFactory.createForClass(PostComment);

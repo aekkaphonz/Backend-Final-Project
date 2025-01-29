@@ -84,14 +84,15 @@ export class CommentService {
   }
 
   async addComment(createCommentDto: CreateCommentDto): Promise<PostComment> {
-    const { postId, userId, comment } = createCommentDto;
+  const { postId, userId, comment } = createCommentDto;
 
-    if (!mongoose.isValidObjectId(postId)) {
-      throw new BadRequestException('Invalid postId format.');
-    }
-    if (!mongoose.isValidObjectId(userId)) {
-      throw new BadRequestException('Invalid userId format.');
-    }
+  if (!mongoose.isValidObjectId(postId)) {
+    throw new BadRequestException('Invalid postId format.');
+  }
+  if (!mongoose.isValidObjectId(userId)) {
+    throw new BadRequestException('Invalid userId format.');
+  }
+
 
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
@@ -104,16 +105,33 @@ export class CommentService {
     const newComment = new this.commentModel(createCommentDto);
     const savedComment = await newComment.save();
 
-    await this.contentModel
-      .findByIdAndUpdate(
-        postId,
-        { $push: { comments: savedComment._id } },
-        { new: true, upsert: false },
-      )
-      .exec();
-
-    return savedComment;
+  // ✅ ดึง userName จากฐานข้อมูล
+  const userName = await this.userModel.findById(userId).select('userName').exec();
+  if (!userName) {
+    throw new NotFoundException(`User with ID ${userId} not found`);
   }
+
+
+  const newComment = new this.commentModel({
+    postId,
+    userId,
+    comment,
+    userName: user.userName, // ✅ บันทึก userName ลงในคอมเมนต์
+  });
+
+  const savedComment = await newComment.save();
+
+  await this.contentModel
+    .findByIdAndUpdate(
+      postId,
+      { $push: { comments: savedComment._id } },
+      { new: true, upsert: false },
+    )
+    .exec();
+
+  return savedComment;
+}
+
 
   async getCommentsInContent(contentId: string) {
     const comments = await this.commentModel

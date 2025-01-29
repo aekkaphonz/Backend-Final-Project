@@ -67,8 +67,6 @@ export class UserController {
     }
   }
 
-
-
   @ApiOperation({ summary: 'Use to check other profile' })
   @ApiOkResponse({ type: [GetUserDto] })
   @Get(':id') 

@@ -24,7 +24,7 @@ import {
 import { GetContentDto } from './dto/get-content.dto';
 import { CreateContentDto } from './dto/create-content.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserService } from "src/user/user.service"; 
+import { UserService } from "src/user/user.service";
 
 @Controller('contents')
 export class ContentController {
@@ -42,7 +42,7 @@ export class ContentController {
 
   }
 
-  
+
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
   @Get()
@@ -51,6 +51,11 @@ export class ContentController {
       throw new BadRequestException('UserId is required');
     }
     return this.contentService.findAllByUserId(userId);
+  }
+
+  @Get('all')
+  async getAllContents() {
+    return this.contentService.findAll(); // ดึงบทความทั้งหมด
   }
 
   @ApiOperation({ summary: 'Update content' })
@@ -139,5 +144,13 @@ export class ContentController {
     return this.contentService.findById(id);
   }
 
+  @Post('updateViews/:id')
+  async updateViews(
+    @Param('id') id: string,
+    @Body('userId') userId: string,
+  ) {
+    return this.contentService.updateViews(id, userId);
+  }
   
+
 }

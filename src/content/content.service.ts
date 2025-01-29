@@ -22,7 +22,7 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
   async create(contentDto: CreateContentDto): Promise<Content> {
     const newContent = new this.contentModel(contentDto);
@@ -30,12 +30,14 @@ export class ContentService {
     return newContent.save();
   }
 
+
   async findAllByUserId(userId: string): Promise<Content[]> {
     console.log(" userId in findAllByUserId:", userId); 
     const contents = await this.contentModel.find({ userId }).exec();
     console.log(" Found contents:", contents); 
     return contents;
   }   
+
 
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
@@ -123,5 +125,20 @@ export class ContentService {
 
     return content;
   }
+
+
+  async updateViews(contentId: string, userId: string): Promise<any> {
+    const content = await this.contentModel.findById(contentId);
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+    if (!content.views.includes(userId)) {
+      content.views.push(userId);
+      await content.save();
+    }
+    return content;
+  }
+  
+
 
 }
