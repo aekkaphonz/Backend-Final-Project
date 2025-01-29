@@ -4,6 +4,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { GetCommentDto } from './dto/get-comment-dto';
+
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
@@ -77,6 +78,5 @@ export class CommentController {
     return comment;
   }
   
-
 }
 
