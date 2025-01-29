@@ -155,7 +155,6 @@ export class CommentService {
       .populate({
         path: 'reply',
         model: this.replyModel,
-        populate: { path: 'userId', select: 'userName' },
       })
 
     return comment;

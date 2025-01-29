@@ -48,7 +48,12 @@ export class ReplyService {
       throw new BadRequestException('comment not found.');
     }
 
-    const newReply = new this.replyModel(createReplyDto);
+    const newReply = new this.replyModel({
+      commentId,
+      userId,
+      commentReply,
+      userName: user.userName,
+    });
     const saveReply = await newReply.save();
 
     await this.commentModel
