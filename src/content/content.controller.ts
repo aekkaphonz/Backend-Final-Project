@@ -24,10 +24,24 @@ import {
 import { GetContentDto } from './dto/get-content.dto';
 import { CreateContentDto } from './dto/create-content.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserService } from "src/user/user.service";
 
 @Controller('contents')
 export class ContentController {
-  constructor(private readonly contentService: ContentService) { }
+  constructor(
+    private readonly contentService: ContentService,
+    private readonly userService: UserService,
+  ) { }
+
+  @ApiOperation({ summary: 'Get all content for specific user' })
+  @ApiOkResponse({ type: [GetContentDto] })
+
+  @Get('all')
+  fetchAllContents() {
+    return this.contentService.findAll();
+
+  }
+
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
@@ -131,8 +145,12 @@ export class ContentController {
   }
 
   @Post('updateViews/:id')
-  async updateViews(@Param('id') id: string) {
-    return this.contentService.updateViews(id);
+  async updateViews(
+    @Param('id') id: string,
+    @Body('userId') userId: string,
+  ) {
+    return this.contentService.updateViews(id, userId);
   }
+  
 
 }

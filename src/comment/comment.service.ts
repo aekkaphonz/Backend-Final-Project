@@ -54,8 +54,28 @@ export class CommentService {
     return updatedComment;
   }
 
-  async deleteById(id: string): Promise<Comment> {
-    return await this.commentModel.findByIdAndDelete(id);
+  // async deleteById(id: string): Promise<Comment> {
+  //   return await this.commentModel.findByIdAndDelete(id);
+  // }
+
+  async deleteById(id: string): Promise<PostComment> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException(`Invalid comment ID: ${id}`);
+    }
+
+    const deletedComment = await this.commentModel.findByIdAndDelete(id).exec();
+    if (!deletedComment) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+    await this.contentModel
+      .findOneAndUpdate(
+        { comments: id },
+        { $pull: { comments: id } },
+        { new: true },
+      )
+      .exec();
+
+    return deletedComment;
   }
 
   async addComment(createCommentDto: CreateCommentDto): Promise<PostComment> {
@@ -69,14 +89,15 @@ export class CommentService {
     }
 
     const newComment = new this.commentModel(createCommentDto);
-
     const savedComment = await newComment.save();
 
-    await this.contentModel.findByIdAndUpdate(
-      postId,
-      { $push: { comments: savedComment._id } },
-      { new: true, upsert: true },
-    );
+    await this.contentModel
+      .findByIdAndUpdate(
+        postId,
+        { $push: { comments: savedComment._id } },
+        { new: true, upsert: false },
+      )
+      .exec();
 
     return savedComment;
   }
@@ -88,11 +109,4 @@ export class CommentService {
       .exec();
     return comments;
   }
-
-  async updateComment(id: string, updateCommentDto: UpdateCommentDto) {
-    return this.commentModel.findByIdAndUpdate(id, updateCommentDto, { new: true });
-  }  
-
-  
-  
 }

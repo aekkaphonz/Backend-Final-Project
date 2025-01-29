@@ -124,13 +124,17 @@ export class ContentService {
     return content;
   }
 
-  async updateViews(id: string): Promise<any> {
-    const content = await this.contentModel.findById(id);
+  async updateViews(contentId: string, userId: string): Promise<any> {
+    const content = await this.contentModel.findById(contentId);
     if (!content) {
       throw new NotFoundException('Content not found');
     }
-    content.views = (content.views || 0) + 1; // ตรวจสอบ `views` ให้แน่ใจว่าเป็นตัวเลขก่อนเพิ่ม
-    return content.save();
+    if (!content.views.includes(userId)) {
+      content.views.push(userId);
+      await content.save();
+    }
+    return content;
   }
+  
 
 }

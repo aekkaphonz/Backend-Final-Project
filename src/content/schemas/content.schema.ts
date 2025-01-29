@@ -24,8 +24,9 @@ export class Content {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: PostComment[];
 
-  @Prop({ type: Number, default: 0 })
-  views: number;
+  @Prop({ type: [String], default: [] })
+  views: string[];
+
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);
