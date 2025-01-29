@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,7 +23,7 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) { }
+  ) {}
 
   async create(contentDto: CreateContentDto): Promise<Content> {
     const newContent = new this.contentModel(contentDto);
@@ -30,20 +31,21 @@ export class ContentService {
     return newContent.save();
   }
 
-
   async findAllByUserId(userId: string): Promise<Content[]> {
-    console.log(" userId in findAllByUserId:", userId); 
+    console.log(' userId in findAllByUserId:', userId);
     const contents = await this.contentModel.find({ userId }).exec();
-    console.log(" Found contents:", contents); 
+    console.log(' Found contents:', contents);
     return contents;
-  }   
-
+  }
 
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
 
-  async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
+  async updateContent(
+    id: string,
+    updateContentDto: CreateContentDto,
+  ): Promise<Content> {
     const content = await this.contentModel.findByIdAndUpdate(
       id,
       updateContentDto,
@@ -54,6 +56,7 @@ export class ContentService {
     if (!content) {
       throw new NotFoundException('Content not found');
     }
+
     return content;
   }
 
@@ -107,9 +110,7 @@ export class ContentService {
 
       return savedContent;
     } catch (error) {
-      throw new BadRequestException(
-        'Failed to create content.',
-      );
+      throw new BadRequestException('Failed to create content.');
     }
   }
 
@@ -126,7 +127,6 @@ export class ContentService {
     return content;
   }
 
-
   async updateViews(contentId: string, userId: string): Promise<any> {
     const content = await this.contentModel.findById(contentId);
     if (!content) {
@@ -138,7 +138,4 @@ export class ContentService {
     }
     return content;
   }
-  
-
-
 }

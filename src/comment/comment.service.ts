@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -45,27 +47,43 @@ export class CommentService {
   async updateById(
     id: string,
     updateCommentDto: UpdateCommentDto,
+    user: { userId: string },
   ): Promise<PostComment> {
-    const { userId, postId } = updateCommentDto;
-    const updatedComment = await this.commentModel
-      .findByIdAndUpdate(id, updateCommentDto, { new: true })
-      .exec();
+    const { postId } = updateCommentDto;
 
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new BadRequestException('User not found.');
+    const userComment = await this.commentModel.findById(id).exec();
+    if (!userComment) {
+      throw new BadRequestException('Comment not found.');
     }
-    const post = await this.userModel.findById(postId).exec();
+    if (userComment.userId.toString() !== user.userId.toString()) {
+      throw new ForbiddenException('You are not allowed to edit this comment.');
+    }
+
+    const post = await this.contentModel.findById(postId).exec();
     if (!post) {
       throw new BadRequestException('Post not found.');
     }
 
+    const updatedComment = await this.commentModel
+      .findByIdAndUpdate(id, updateCommentDto, { new: true })
+      .exec();
+
     return updatedComment;
   }
 
-  async deleteById(id: string): Promise<PostComment> {
+  async deleteById(
+    id: string,
+    user: { userId: string },
+  ): Promise<PostComment> {
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException(`Invalid comment ID: ${id}`);
+    }
+    const userComment = await this.commentModel.findById(id).exec();
+    if (!userComment) {
+      throw new BadRequestException('Comment not found.');
+    }
+    if (userComment.userId.toString() !== user.userId.toString()) {
+      throw new ForbiddenException('You are not allowed to delete this comment.');
     }
 
     const deletedComment = await this.commentModel.findByIdAndDelete(id).exec();
@@ -85,44 +103,43 @@ export class CommentService {
 
   async addComment(createCommentDto: CreateCommentDto): Promise<PostComment> {
     const { postId, userId, comment } = createCommentDto;
-  
+
     if (!mongoose.isValidObjectId(postId)) {
       throw new BadRequestException('Invalid postId format.');
     }
     if (!mongoose.isValidObjectId(userId)) {
       throw new BadRequestException('Invalid userId format.');
     }
-  
+
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
       throw new BadRequestException('User not found.');
     }
-  
+
     const post = await this.contentModel.findById(postId).exec();
     if (!post) {
       throw new BadRequestException('Post not found.');
     }
-  
-   
+
     const newComment = new this.commentModel({
       postId,
       userId,
       comment,
-      userName: user.userName, 
+      userName: user.userName,
     });
-  
+
     const savedComment = await newComment.save();
-  
-  
-    await this.contentModel.findByIdAndUpdate(
-      postId,
-      { $push: { comments: savedComment._id } },
-      { new: true, upsert: false },
-    ).exec();
-  
+
+    await this.contentModel
+      .findByIdAndUpdate(
+        postId,
+        { $push: { comments: savedComment._id } },
+        { new: true, upsert: false },
+      )
+      .exec();
+
     return savedComment;
   }
-
 
   async getCommentsInContent(contentId: string) {
     const comments = await this.commentModel
@@ -138,9 +155,7 @@ export class CommentService {
       .populate({
         path: 'reply',
         model: this.replyModel,
-        populate: { path: 'userId', select: 'userName' },
       })
-      .populate('userId', 'userName');
 
     return comment;
   }

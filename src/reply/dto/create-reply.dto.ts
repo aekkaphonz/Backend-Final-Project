@@ -12,6 +12,9 @@ export class CreateReplyDto {
   @ApiProperty({ description: 'User id ', example: '678dccaf5cd2a561efb02d45' })
   userId: Types.ObjectId;
 
+  @ApiProperty({ description: 'Your name', example: 'Admin' })
+  userName: string;
+
   @ApiProperty({
     description: 'The comment text',
     example: 'This is a sample comment',
