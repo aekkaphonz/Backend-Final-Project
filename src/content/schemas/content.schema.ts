@@ -24,8 +24,18 @@ export class Content {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: PostComment[]; 
 
+  @Prop()
+  userName: string;
+
   @Prop({ type: [String], default: [] })
   views: string[];
+
+  @Prop({ type: [String], required: true })
+  tags: string[];
+
+  @Prop({ default: 0 })
+  totalComments: number;
+
 
 }
 

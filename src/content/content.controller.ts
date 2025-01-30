@@ -33,7 +33,7 @@ export class ContentController {
   constructor(
     private readonly contentService: ContentService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
@@ -66,8 +66,8 @@ export class ContentController {
     @Param('id') id: string,
     @Body() updateContentDto: CreateContentDto,
   ) {
-    const previousContent = await this.contentService.findById(id);
-    if (!previousContent) {
+    const existingContent = await this.contentService.findById(id);
+    if (!existingContent) {
       throw new NotFoundException('Content not found');
     }
 
@@ -75,13 +75,21 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException('Invalid file type.');
+        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
       const mimeType = file.mimetype;
       updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
-    } else if (!updateContentDto.postImage) {
-      updateContentDto.postImage = previousContent.postImage;
+    }
+
+    // 🔹 ตรวจสอบ `tags`
+    if (updateContentDto.tags && typeof updateContentDto.tags === 'string') {
+      try {
+        updateContentDto.tags = JSON.parse(updateContentDto.tags);
+      } catch (error) {
+        throw new BadRequestException('Invalid tags format.');
+      }
     }
 
     return this.contentService.updateContent(id, updateContentDto);
@@ -123,9 +131,13 @@ export class ContentController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createContentDto: CreateContentDto,
   ) {
+    console.log("📥 รับข้อมูลจาก Frontend:", createContentDto);
+    console.log("📷 ไฟล์ภาพที่ได้รับ:", file);
+
     if (file) {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException('Invalid file type.');
         throw new BadRequestException('Invalid file type.');
       }
 
@@ -156,4 +168,5 @@ export class ContentController {
   async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
     return this.contentService.updateViews(id, userId);
   }
+
 }
