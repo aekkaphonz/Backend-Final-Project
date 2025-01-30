@@ -6,7 +6,7 @@ export type ContentDocument = Content & Document;
 
 @Schema({ timestamps: true })
 export class Content {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }) 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: string;
 
   @Prop({ required: true })
@@ -19,12 +19,14 @@ export class Content {
   description: string;
 
   @Prop()
-  postImage: string; 
+  postImage: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: PostComment[]; 
-  
-  
+
+  @Prop({ type: [String], default: [] })
+  views: string[];
+
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);

@@ -11,7 +11,9 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
-  Query
+  Query,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
@@ -24,25 +26,22 @@ import {
 import { GetContentDto } from './dto/get-content.dto';
 import { CreateContentDto } from './dto/create-content.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserService } from "src/user/user.service"; 
+import { UserService } from 'src/user/user.service';
 
 @Controller('contents')
 export class ContentController {
   constructor(
     private readonly contentService: ContentService,
     private readonly userService: UserService,
-  ) { }
+  ) {}
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
-
   @Get('all')
   fetchAllContents() {
     return this.contentService.findAll();
-
   }
 
-  
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
   @Get()
@@ -53,6 +52,11 @@ export class ContentController {
     return this.contentService.findAllByUserId(userId);
   }
 
+  @Get('all')
+  async getAllContents() {
+    return this.contentService.findAll();
+  }
+
   @ApiOperation({ summary: 'Update content' })
   @ApiOkResponse({ type: GetContentDto })
   @Put('updateContent/:id')
@@ -60,7 +64,7 @@ export class ContentController {
   async updateContent(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updateContentDto: Partial<CreateContentDto>,
+    @Body() updateContentDto: CreateContentDto,
   ) {
     const previousContent = await this.contentService.findById(id);
     if (!previousContent) {
@@ -70,16 +74,13 @@ export class ContentController {
     if (file) {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException(
-          'Invalid file type.',
-        );
+        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
       const mimeType = file.mimetype;
       updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
     } else if (!updateContentDto.postImage) {
-
       updateContentDto.postImage = previousContent.postImage;
     }
 
@@ -125,9 +126,7 @@ export class ContentController {
     if (file) {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException(
-          'Invalid file type.',
-        );
+        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
@@ -153,4 +152,8 @@ export class ContentController {
   }
   
   
+  @Post('updateViews/:id')
+  async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.contentService.updateViews(id, userId);
+  }
 }

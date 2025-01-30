@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -29,12 +30,15 @@ export class ContentService {
     console.log(newContent);
     return newContent.save();
   }
-
+  
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
 
-  async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
+  async updateContent(
+    id: string,
+    updateContentDto: CreateContentDto,
+  ): Promise<Content> {
     const content = await this.contentModel.findByIdAndUpdate(
       id,
       updateContentDto,
@@ -45,6 +49,7 @@ export class ContentService {
     if (!content) {
       throw new NotFoundException('Content not found');
     }
+
     return content;
   }
 
@@ -98,9 +103,7 @@ export class ContentService {
 
       return savedContent;
     } catch (error) {
-      throw new BadRequestException(
-        'Failed to create content.',
-      );
+      throw new BadRequestException('Failed to create content.');
     }
   }
 
@@ -157,4 +160,15 @@ export class ContentService {
     });
   }
   
+  async updateViews(contentId: string, userId: string): Promise<any> {
+    const content = await this.contentModel.findById(contentId);
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+    if (!content.views.includes(userId)) {
+      content.views.push(userId);
+      await content.save();
+    }
+    return content;
+  }
 }
