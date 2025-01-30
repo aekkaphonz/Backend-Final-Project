@@ -199,5 +199,48 @@ export class ContentService {
     return contents;
   }
 
+  async toggleLike(postId: string, userId: string): Promise<Content> {
+    const post = await this.contentModel.findById(postId);
 
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const isLiked = post.likedUsers.includes(userId);
+
+    if (isLiked) {
+      // ยกเลิกไลค์
+      post.likedUsers = post.likedUsers.filter((user) => user !== userId);
+      post.likeCount -= 1;
+    } else {
+      // ไลค์ใหม่
+      post.likedUsers.push(userId);
+      post.likeCount += 1;
+    }
+
+    // อัพเดตโพสต์ในฐานข้อมูล
+    await post.save();
+    return post;
+  }
+
+  async updateLike(contentId: string, userId: string): Promise<any> {
+    const content = await this.contentModel.findById(contentId);
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+  
+    // ถ้า userId ยังไม่ได้ไลค์ จะเพิ่มเข้าไปใน likedUsers และเพิ่มจำนวนไลค์
+    if (!content.likedUsers.includes(userId)) {
+      content.likedUsers.push(userId);
+      content.likeCount += 1; // เพิ่มจำนวนไลค์
+    } else {
+      // ถ้า userId เคยไลค์แล้ว ให้ลบออกจาก likedUsers และลดจำนวนไลค์
+      content.likedUsers = content.likedUsers.filter(id => id !== userId);
+      content.likeCount -= 1; // ลดจำนวนไลค์
+    }
+  
+    await content.save();
+    return content; // ส่งกลับข้อมูลโพสต์ที่ถูกอัปเดต
+  }
+  
 }

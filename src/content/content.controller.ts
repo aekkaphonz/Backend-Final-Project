@@ -135,7 +135,6 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException('Invalid file type.');
-        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
@@ -176,5 +175,11 @@ export class ContentController {
     return this.contentService.findByTag(tag);
   }
 
-
+  @Post(':id/like')
+  async toggleLike(
+    @Param('id') postId: string,
+    @Body() body: { userId: string },
+  ): Promise<Content> {
+    return this.contentService.toggleLike(postId, body.userId);
+  }
 }
