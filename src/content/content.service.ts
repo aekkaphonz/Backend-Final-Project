@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,28 +23,22 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) { }
+  ) {}
 
   async create(contentDto: CreateContentDto): Promise<Content> {
     const newContent = new this.contentModel(contentDto);
     console.log(newContent);
     return newContent.save();
   }
-
-
-  async findAllByUserId(userId: string): Promise<Content[]> {
-    console.log(" userId in findAllByUserId:", userId); 
-    const contents = await this.contentModel.find({ userId }).exec();
-    console.log(" Found contents:", contents); 
-    return contents;
-  }   
-
-
+  
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
 
-  async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
+  async updateContent(
+    id: string,
+    updateContentDto: CreateContentDto,
+  ): Promise<Content> {
     const content = await this.contentModel.findByIdAndUpdate(
       id,
       updateContentDto,
@@ -54,6 +49,7 @@ export class ContentService {
     if (!content) {
       throw new NotFoundException('Content not found');
     }
+
     return content;
   }
 
@@ -107,9 +103,7 @@ export class ContentService {
 
       return savedContent;
     } catch (error) {
-      throw new BadRequestException(
-        'Failed to create content.',
-      );
+      throw new BadRequestException('Failed to create content.');
     }
   }
 
@@ -126,7 +120,46 @@ export class ContentService {
     return content;
   }
 
+  async findAllByUserId(userId: string): Promise<Content[]> {
+    console.log("👉 userId in findAllByUserId:", userId); // Debug userId
+    const contents = await this.contentModel.find({ userId }).exec();
+    console.log("✅ Found contents:", contents); // Debug ผลลัพธ์ที่ดึงได้
+    return contents;
+  }   
 
+  async searchByTitle(search: string) {
+    return this.contentModel.find({ title: new RegExp(search, 'i') }).exec();
+  }
+  
+   // 🔍 ค้นหาตาม `_id`
+   async getById(id: string) {
+    console.log(`🔍 Searching by ID: ${id}`); // Debugging
+    const content = await this.contentModel.findById(id).exec();
+    if (!content) {
+      throw new NotFoundException('Content not found.');
+    }
+    return content;
+  }
+
+  // 🔍 ค้นหาตาม `title`
+  async getByTitle(title: string) {
+    console.log(`🔍 Searching by title: ${title}`); // Debugging
+    const content = await this.contentModel.findOne({ title: new RegExp(`^${title}$`, 'i') }).exec();
+    if (!content) {
+      throw new NotFoundException('Content with this title not found.');
+    }
+    return content;
+  }
+
+  async searchContents(searchQuery: string) {
+    return this.contentModel.find({
+      $or: [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { detail: { $regex: searchQuery, $options: "i" } },
+      ],
+    });
+  }
+  
   async updateViews(contentId: string, userId: string): Promise<any> {
     const content = await this.contentModel.findById(contentId);
     if (!content) {
@@ -138,7 +171,4 @@ export class ContentService {
     }
     return content;
   }
-  
-
-
 }

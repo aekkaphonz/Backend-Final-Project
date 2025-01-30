@@ -22,4 +22,7 @@ export class UpdateContentDto {
 
   @ApiProperty()
   postImage: string;
+  
+  @ApiProperty()
+  tags?: string[];
 }

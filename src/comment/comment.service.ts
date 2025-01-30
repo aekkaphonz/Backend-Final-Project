@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -11,7 +13,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { commentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
+import { CommentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
 
 @Injectable()
 export class CommentService {
@@ -21,7 +23,7 @@ export class CommentService {
     @InjectModel(Content.name)
     private readonly contentModel: Model<ContentDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @InjectModel(commentReply.name)
+    @InjectModel(CommentReply.name)
     private readonly replyModel: Model<ReplyDocument>,
   ) {}
 
@@ -45,28 +47,45 @@ export class CommentService {
   async updateById(
     id: string,
     updateCommentDto: UpdateCommentDto,
+    user: { userId: string },
   ): Promise<PostComment> {
-    const { userId, postId } = updateCommentDto;
-    const updatedComment = await this.commentModel
-      .findByIdAndUpdate(id, updateCommentDto, { new: true })
-      .exec();
+    const { postId } = updateCommentDto;
 
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new BadRequestException('User not found.');
+    const userComment = await this.commentModel.findById(id).exec();
+    if (!userComment) {
+      throw new BadRequestException('Comment not found.');
     }
-    const post = await this.userModel.findById(postId).exec();
+    if (userComment.userId.toString() !== user.userId.toString()) {
+      throw new ForbiddenException('You are not allowed to edit this comment.');
+    }
+
+    const post = await this.contentModel.findById(postId).exec();
     if (!post) {
       throw new BadRequestException('Post not found.');
     }
 
+    const updatedComment = await this.commentModel
+      .findByIdAndUpdate(id, updateCommentDto, { new: true })
+      .exec();
+
     return updatedComment;
   }
 
-  async deleteById(id: string): Promise<PostComment> {
+  async deleteById(id: string, user: { userId: string }): Promise<PostComment> {
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException(`Invalid comment ID: ${id}`);
     }
+    const userComment = await this.commentModel.findById(id).exec();
+    if (!userComment) {
+      throw new BadRequestException('Comment not found.');
+    }
+    if (userComment.userId.toString() !== user.userId.toString()) {
+      throw new ForbiddenException(
+        'You are not allowed to delete this comment.',
+      );
+    }
+
+    // await this.replyModel.deleteMany({ _id: { $in: userComment.reply } });
 
     const deletedComment = await this.commentModel.findByIdAndDelete(id).exec();
     if (!deletedComment) {
@@ -85,45 +104,44 @@ export class CommentService {
 
   async addComment(createCommentDto: CreateCommentDto): Promise<PostComment> {
     const { postId, userId, comment } = createCommentDto;
-  
+
     if (!mongoose.isValidObjectId(postId)) {
       throw new BadRequestException('Invalid postId format.');
     }
     if (!mongoose.isValidObjectId(userId)) {
       throw new BadRequestException('Invalid userId format.');
     }
-  
+
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
       throw new BadRequestException('User not found.');
     }
-  
+
     const post = await this.contentModel.findById(postId).exec();
     if (!post) {
       throw new BadRequestException('Post not found.');
     }
-  
-   
+
     const newComment = new this.commentModel({
       postId,
       userId,
       comment,
-      userName: user.userName, 
+
+      userName: user.userName,
     });
-  
+
     const savedComment = await newComment.save();
-  
-  
-    await this.contentModel.findByIdAndUpdate(
-      postId,
-      { $push: { comments: savedComment._id } },
-      { new: true, upsert: false },
-    ).exec();
-  
+
+    await this.contentModel
+      .findByIdAndUpdate(
+        postId,
+        { $push: { comments: savedComment._id } },
+        { new: true, upsert: false },
+      )
+      .exec();
+
     return savedComment;
   }
-  
-
 
   async getCommentsInContent(contentId: string) {
     const comments = await this.commentModel
@@ -134,14 +152,10 @@ export class CommentService {
   }
 
   async getCommentWithReplies(commentId: string) {
-    const comment = await this.commentModel
-      .findById(commentId)
-      .populate({
-        path: 'reply',
-        model: this.replyModel,
-        populate: { path: 'userId', select: 'userName' },
-      })
-      .populate('userId', 'userName');
+    const comment = await this.commentModel.findById(commentId).populate({
+      path: 'reply',
+      model: this.replyModel,
+    });
 
     return comment;
   }

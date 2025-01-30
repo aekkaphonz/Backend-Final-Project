@@ -8,11 +8,13 @@ import {
   Delete,
   NotFoundException,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ReplyService } from './reply.service';
 import { CreateReplyDto } from './dto/create-reply.dto';
 import { UpdateReplyDto } from './dto/update-reply.dto';
-import { commentReply } from './schemas/reply.schema';
+import { CommentReply } from './schemas/reply.schema';
 import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 @Controller('reply')
 export class ReplyController {
@@ -34,7 +36,7 @@ export class ReplyController {
   @Post('addReply')
   async addReply(
     @Body() createReplyDto: CreateReplyDto,
-  ): Promise<commentReply> {
+  ): Promise<CommentReply> {
     return this.replyService.addReply(createReplyDto);
   }
 
@@ -44,8 +46,12 @@ export class ReplyController {
   async deleteComment(
     @Param('id')
     id: string,
+    @Req() req: any,
   ): Promise<{ message: string }> {
-    const deletedReply = await this.replyService.deleteById(id);
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('User is not authenticated.');
+    }
+    const deletedReply = await this.replyService.deleteById(id,req.user);
     if (!deletedReply) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
     }
@@ -57,7 +63,11 @@ export class ReplyController {
     async updateComment(
       @Param('id') id: string,
       @Body() updateReplyDto: UpdateReplyDto,
+      @Req() req: any,
     ) {
-      return this.replyService.updateById(id, updateReplyDto);
+       if (!req.user || !req.user.userId) {
+            throw new UnauthorizedException('User is not authenticated.');
+          }
+      return this.replyService.updateById(id, updateReplyDto,req.user);
     }
 }

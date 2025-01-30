@@ -11,7 +11,9 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
-  Query
+  Query,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { Content } from './schemas/content.schema';
@@ -24,7 +26,7 @@ import {
 import { GetContentDto } from './dto/get-content.dto';
 import { CreateContentDto } from './dto/create-content.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserService } from "src/user/user.service";
+import { UserService } from 'src/user/user.service';
 
 @Controller('contents')
 export class ContentController {
@@ -35,13 +37,10 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
-
   @Get('all')
   fetchAllContents() {
     return this.contentService.findAll();
-
   }
-
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
@@ -55,7 +54,7 @@ export class ContentController {
 
   @Get('all')
   async getAllContents() {
-    return this.contentService.findAll(); // ดึงบทความทั้งหมด
+    return this.contentService.findAll();
   }
 
   @ApiOperation({ summary: 'Update content' })
@@ -65,27 +64,32 @@ export class ContentController {
   async updateContent(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updateContentDto: Partial<CreateContentDto>,
+    @Body() updateContentDto: CreateContentDto,
   ) {
-    const previousContent = await this.contentService.findById(id);
-    if (!previousContent) {
+    const existingContent = await this.contentService.findById(id);
+    if (!existingContent) {
       throw new NotFoundException('Content not found');
     }
 
     if (file) {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException(
-          'Invalid file type.',
-        );
+        throw new BadRequestException('Invalid file type.');
+        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
       const mimeType = file.mimetype;
       updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
-    } else if (!updateContentDto.postImage) {
+    }
 
-      updateContentDto.postImage = previousContent.postImage;
+    // 🔹 ตรวจสอบ `tags`
+    if (updateContentDto.tags && typeof updateContentDto.tags === 'string') {
+      try {
+        updateContentDto.tags = JSON.parse(updateContentDto.tags);
+      } catch (error) {
+        throw new BadRequestException('Invalid tags format.');
+      }
     }
 
     return this.contentService.updateContent(id, updateContentDto);
@@ -93,14 +97,21 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get detail content & comment' })
   @ApiOkResponse({ type: [GetContentDto] })
-  @Get('detail/:id')
-  async getContent(@Param('id') contentId: string) {
-    const content = await this.contentService.getContentWithComments(contentId);
-    if (!content) {
-      throw new NotFoundException(`Content with ID ${contentId} not found`);
+   @Get(':identifier')
+   async getContent(@Param('identifier') identifier: string) {
+     if (!identifier) {
+       throw new BadRequestException('Identifier parameter is required.');
+     }
+ 
+     // ตรวจสอบว่าเป็น ObjectId (24 ตัวอักษรฐาน 16)
+     const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+ 
+     if (isObjectId) {
+       return this.contentService.getById(identifier);
+     } else {
+       return this.contentService.getByTitle(identifier);
+     }
     }
-    return content;
-  }
 
   @ApiOperation({ summary: 'Delete content' })
   @ApiOkResponse({ description: 'Delete successfully' })
@@ -120,12 +131,14 @@ export class ContentController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createContentDto: CreateContentDto,
   ) {
+    console.log("📥 รับข้อมูลจาก Frontend:", createContentDto);
+    console.log("📷 ไฟล์ภาพที่ได้รับ:", file);
+
     if (file) {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException(
-          'Invalid file type.',
-        );
+        throw new BadRequestException('Invalid file type.');
+        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
@@ -144,13 +157,16 @@ export class ContentController {
     return this.contentService.findById(id);
   }
 
-  @Post('updateViews/:id')
-  async updateViews(
-    @Param('id') id: string,
-    @Body('userId') userId: string,
-  ) {
-    return this.contentService.updateViews(id, userId);
+  @Get("search")
+  async searchContent(@Query("search") searchQuery: string) {
+    console.log("🔍 Search Query:", searchQuery); // Debug Query
+    return this.contentService.searchContents(searchQuery);
   }
   
+  
+  @Post('updateViews/:id')
+  async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.contentService.updateViews(id, userId);
+  }
 
 }
