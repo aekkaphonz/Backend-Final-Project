@@ -14,7 +14,7 @@ import {
 import { ReplyService } from './reply.service';
 import { CreateReplyDto } from './dto/create-reply.dto';
 import { UpdateReplyDto } from './dto/update-reply.dto';
-import { commentReply } from './schemas/reply.schema';
+import { CommentReply } from './schemas/reply.schema';
 import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 @Controller('reply')
 export class ReplyController {
@@ -36,7 +36,7 @@ export class ReplyController {
   @Post('addReply')
   async addReply(
     @Body() createReplyDto: CreateReplyDto,
-  ): Promise<commentReply> {
+  ): Promise<CommentReply> {
     return this.replyService.addReply(createReplyDto);
   }
 

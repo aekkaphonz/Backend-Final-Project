@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 
-export type ReplyDocument = commentReply & Document;
+export type ReplyDocument = CommentReply & Document;
 
 
 @Schema({ timestamps: true })
-export class commentReply {
+export class CommentReply {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'PostComment', required: true })
   commentId: string;
 
@@ -21,4 +21,4 @@ export class commentReply {
   commentReply: string;  
 }
 
-export const CommentReplySchema = SchemaFactory.createForClass(commentReply);
+export const CommentReplySchema = SchemaFactory.createForClass(CommentReply);
