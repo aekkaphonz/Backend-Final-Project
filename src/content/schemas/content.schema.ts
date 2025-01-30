@@ -18,8 +18,8 @@ export class Content {
   @Prop()
   description: string;
 
-  @Prop({ required: true  })
-  image: string;
+  @Prop()
+  postImage: string; 
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: PostComment[]; 

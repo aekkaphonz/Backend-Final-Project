@@ -19,6 +19,36 @@ export class RegisterDto {
   @IsString()
   readonly gender: string;
 
-  @IsString()
+  @ApiProperty({description : 'Your birth ', example: "29/06/2002"})
   readonly dateOfBirth: string;
+
+  // @ApiProperty()
+  // @IsString()
+  // @Matches(/^data:image\/(png|jpeg|jpg|gif);base64,[A-Za-z0-9+/=]+$/, {
+  //   message: 'profileImage must be a valid Base64 encoded image',
+  // })
+  // profileImage?: string; 
+  
+}
+
+export class RegisterResponseDto {
+  @ApiProperty({example: "678db4c909bdfce98e1384b4"})
+  readonly _id: string;
+
+  @ApiProperty()
+  readonly email: string;
+
+  @ApiProperty()
+  readonly password: string;
+
+  @ApiProperty()
+  readonly userName: string;
+
+  @ApiProperty()
+  readonly gender: string;
+
+  @ApiProperty()
+  readonly dateOfBirth: string;
+
+
 }

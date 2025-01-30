@@ -57,23 +57,18 @@ export class CommentService {
     return await this.commentModel.findByIdAndDelete(id);
   }
 
-  async addComment(
-    createCommentDto: CreateCommentDto,
-  ): Promise<PostComment> {
+  async addComment(createCommentDto: CreateCommentDto): Promise<PostComment> {
     const { postId, userId, comment } = createCommentDto;
-  
-    
+
     if (!mongoose.isValidObjectId(postId)) {
       throw new BadRequestException('Invalid postId format.');
     }
     if (!mongoose.isValidObjectId(userId)) {
       throw new BadRequestException('Invalid userId format.');
     }
-  
-  
+
     const newComment = new this.commentModel(createCommentDto);
-  
-   
+
     const savedComment = await newComment.save();
   
 
@@ -82,9 +77,9 @@ export class CommentService {
       { $push: { comments: savedComment._id } },
       { new: true, upsert: true },
     );
-  
     return savedComment;
   }
+
   async getCommentsInContent(contentId: string) {
     const comments = await this.commentModel
       .find({ postId: contentId })
@@ -92,4 +87,11 @@ export class CommentService {
       .exec();
     return comments;
   }
+
+  async updateComment(id: string, updateCommentDto: UpdateCommentDto) {
+    return this.commentModel.findByIdAndUpdate(id, updateCommentDto, { new: true });
+  }  
+
+  
+  
 }

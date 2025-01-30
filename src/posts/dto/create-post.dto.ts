@@ -1,7 +1,17 @@
+import { IsString, IsOptional } from 'class-validator';
+
 export class CreatePostDto {
-    readonly title: string;
-    readonly content: string;
-    readonly tags: string[];
-    readonly createdAt: Date;
-    readonly images?: string[];
+  @IsString()
+  title: string;
+
+  @IsString()
+  content: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsOptional()
+  images?: string[];
+
 }

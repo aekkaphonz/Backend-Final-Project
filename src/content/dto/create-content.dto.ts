@@ -4,8 +4,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateContentDto {
 
-  readonly userId?: Types.ObjectId;
+
+  @ApiProperty({description : 'Your id ', example: "678db93685ad6c7405e8fd97"})
   
+  userId: string;
+
+  @ApiProperty({description : 'Title ', example: "This is title"})
   @IsString()
   @IsNotEmpty()
    title: string;
@@ -15,9 +19,10 @@ export class CreateContentDto {
   @IsNotEmpty()
    detail: string;
 
+  @ApiProperty({description : 'Description', example: "This is description"})
+   description: string;
 
-  readonly description: string;
-
- 
-  readonly image: string;
+  @ApiProperty({description : 'Your image', example: "example.png"})
+  @IsOptional()
+   postImage?: string;
 }
