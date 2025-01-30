@@ -23,7 +23,7 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
   async create(createContentDto: CreateContentDto): Promise<Content> {
     const { userId, title, detail, description, comments, postImage } =
@@ -149,10 +149,7 @@ export class ContentService {
       .findById(contentId)
       .populate({
         path: 'comments',
-        populate: {
-          path: 'userId',
-          select: 'userName',
-        },
+        select: 'userId',
         model: this.commentModel,
       })
       .exec();
@@ -160,6 +157,8 @@ export class ContentService {
     if (!contentWithComments) {
       throw new NotFoundException(`Content with ID ${contentId} not found`);
     }
+
+    contentWithComments.totalComments = contentWithComments.comments.length;
 
     return contentWithComments;
   }
@@ -192,6 +191,5 @@ export class ContentService {
     }
     return content;
   }
-
 
 }

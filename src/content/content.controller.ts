@@ -33,7 +33,7 @@ export class ContentController {
   constructor(
     private readonly contentService: ContentService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   @ApiOperation({ summary: 'Get all content for specific user' })
   @ApiOkResponse({ type: [GetContentDto] })
@@ -103,7 +103,11 @@ export class ContentController {
     if (!content) {
       throw new NotFoundException(`Content with ID ${contentId} not found`);
     }
-    return content;
+
+    return {
+      content,
+      totalComments: content.totalComments || 0,
+    };
   }
 
   @ApiOperation({ summary: 'Delete content' })
@@ -154,6 +158,5 @@ export class ContentController {
   async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
     return this.contentService.updateViews(id, userId);
   }
-
 
 }
