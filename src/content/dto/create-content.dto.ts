@@ -1,14 +1,18 @@
+
 import {
+  IsArray,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
   isString,
   IsString,
 } from 'class-validator';
+
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateContentDto {
+
   @ApiProperty({ description: 'Your id ', example: '678db93685ad6c7405e8fd97' })
   userId: string;
 
@@ -33,4 +37,12 @@ export class CreateContentDto {
 
   @ApiProperty({ description: 'Your comment', example: 'comment' })
   comments: string;
+
+  @ApiProperty({ type: [String], required: false }) // ✅ เพิ่ม tags
+  @IsArray()
+  @IsOptional()
+  tags?: string[];
+
+
+
 }
