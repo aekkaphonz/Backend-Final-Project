@@ -97,18 +97,21 @@ export class ContentController {
 
   @ApiOperation({ summary: 'Get detail content & comment' })
   @ApiOkResponse({ type: [GetContentDto] })
-  @Get('detail/:id')
-  async getContent(@Param('id') contentId: string) {
-    const content = await this.contentService.getContentWithComments(contentId);
-    if (!content) {
-      throw new NotFoundException(`Content with ID ${contentId} not found`);
+   @Get(':identifier')
+   async getContent(@Param('identifier') identifier: string) {
+     if (!identifier) {
+       throw new BadRequestException('Identifier parameter is required.');
+     }
+ 
+     // ตรวจสอบว่าเป็น ObjectId (24 ตัวอักษรฐาน 16)
+     const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+ 
+     if (isObjectId) {
+       return this.contentService.getById(identifier);
+     } else {
+       return this.contentService.getByTitle(identifier);
+     }
     }
-
-    return {
-      content,
-      totalComments: content.totalComments || 0,
-    };
-  }
 
   @ApiOperation({ summary: 'Delete content' })
   @ApiOkResponse({ description: 'Delete successfully' })
@@ -154,6 +157,13 @@ export class ContentController {
     return this.contentService.findById(id);
   }
 
+  @Get("search")
+  async searchContent(@Query("search") searchQuery: string) {
+    console.log("🔍 Search Query:", searchQuery); // Debug Query
+    return this.contentService.searchContents(searchQuery);
+  }
+  
+  
   @Post('updateViews/:id')
   async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
     return this.contentService.updateViews(id, userId);
