@@ -27,8 +27,12 @@ export class Content {
   @Prop({ type: [String], default: [] })
   views: string[];
 
-  @Prop({ type: [String], default: [] })
+  @Prop({ type: [String], required: true })
   tags: string[];
+
+  @Prop({ default: 0 })
+  totalComments: number;
+
 
 }
 
