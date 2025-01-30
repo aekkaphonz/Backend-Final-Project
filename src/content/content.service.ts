@@ -66,7 +66,7 @@ export class ContentService {
   // async createContent(createContentDto: CreateContentDto): Promise<Content> {
   //   let { userId, title, detail, postImage, tags } = createContentDto;
 
-    
+
 
   //   const newContent = new this.contentModel({
   //     userId,
@@ -80,7 +80,7 @@ export class ContentService {
   // }
 
   async createContent(createContentDto: CreateContentDto): Promise<Content> {
-    let { userId, title, detail, description, postImage,tags } = createContentDto;
+    let { userId, title, detail, description, postImage, tags } = createContentDto;
 
     if (!Array.isArray(tags)) {
       tags = typeof tags === "string" ? [tags] : [];
@@ -98,7 +98,7 @@ export class ContentService {
       description,
       postImage,
       tags,
-      userName: user.userName, 
+      userName: user.userName,
     });
 
     try {
@@ -114,7 +114,7 @@ export class ContentService {
     } catch (error) {
       throw new BadRequestException('Failed to create content.');
     }
-}
+  }
 
 
   async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
@@ -163,10 +163,6 @@ export class ContentService {
     return contentWithComments;
   }
 
-
-  
-
-
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);
     if (!isValidId) {
@@ -191,5 +187,18 @@ export class ContentService {
     }
     return content;
   }
+
+  async findByTag(tag: string): Promise<Content[]> {
+    const contents = await this.contentModel
+      .find({ tags: tag })  // ค้นหาบทความที่มี tag ตรงกับค่าที่ส่งมา
+      .exec();
+
+    if (contents.length === 0) {
+      throw new NotFoundException(`No content found with the tag ${tag}`);
+    }
+
+    return contents;
+  }
+
 
 }

@@ -64,7 +64,7 @@ export class ContentController {
   async updateContent(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updateContentDto: CreateContentDto,
+    @Body() updateContentDto: Partial<CreateContentDto>,
   ) {
     const existingContent = await this.contentService.findById(id);
     if (!existingContent) {
@@ -72,24 +72,21 @@ export class ContentController {
     }
 
     if (file) {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Invalid file type.');
-        throw new BadRequestException('Invalid file type.');
-      }
-
-      const base64Image = file.buffer.toString('base64');
-      const mimeType = file.mimetype;
-      updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
+      updateContentDto.postImage = `/uploads/${file.filename}`; // ✅ ใช้ path ที่ถูกต้อง
     }
 
-    // 🔹 ตรวจสอบ `tags`
-    if (updateContentDto.tags && typeof updateContentDto.tags === 'string') {
+    // ✅ ตรวจสอบว่า `tags` เป็น `string` ก่อน `JSON.parse()`
+    if (typeof updateContentDto.tags === "string") {
       try {
         updateContentDto.tags = JSON.parse(updateContentDto.tags);
       } catch (error) {
         throw new BadRequestException('Invalid tags format.');
       }
+    }
+
+    // ✅ ตรวจสอบว่า `tags` เป็น `array`
+    if (!Array.isArray(updateContentDto.tags)) {
+      throw new BadRequestException('Tags must be an array.');
     }
 
     return this.contentService.updateContent(id, updateContentDto);
@@ -158,5 +155,16 @@ export class ContentController {
   async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
     return this.contentService.updateViews(id, userId);
   }
+
+  @ApiOperation({ summary: 'Get content by tag' })
+  @ApiOkResponse({ type: [GetContentDto] })
+  @Get('searchByTag')
+  async searchContentByTag(@Query('tag') tag: string) {
+    if (!tag) {
+      throw new BadRequestException('Tag is required');
+    }
+    return this.contentService.findByTag(tag);
+  }
+
 
 }
