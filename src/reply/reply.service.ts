@@ -7,7 +7,7 @@ import {
 import { CreateReplyDto } from './dto/create-reply.dto';
 import { UpdateReplyDto } from './dto/update-reply.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { commentReply, ReplyDocument } from './schemas/reply.schema';
+import { CommentReply , ReplyDocument } from './schemas/reply.schema';
 import mongoose, { Model, Types } from 'mongoose';
 import {
   CommentDocument,
@@ -18,18 +18,18 @@ import { User, UserDocument } from 'src/user/schemas/user.schema';
 @Injectable()
 export class ReplyService {
   constructor(
-    @InjectModel(commentReply.name)
+    @InjectModel(CommentReply.name)
     private readonly replyModel: Model<ReplyDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  findAll(): Promise<commentReply[]> {
+  findAll(): Promise<CommentReply[]> {
     return this.replyModel.find().exec();
   }
 
-  async addReply(createReplyDto: CreateReplyDto): Promise<commentReply> {
+  async addReply(createReplyDto: CreateReplyDto): Promise<CommentReply> {
     const { commentId, userId, commentReply } = createReplyDto;
 
     if (!mongoose.isValidObjectId(commentId)) {
@@ -70,7 +70,7 @@ export class ReplyService {
   async deleteById(
     id: string,
     user: { userId: string },
-  ): Promise<commentReply> {
+  ): Promise<CommentReply> {
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException(`Invalid reply ID: ${id}`);
     }
@@ -97,7 +97,7 @@ export class ReplyService {
     id: string,
     updateReplyDto: UpdateReplyDto,
     user: { userId: string },
-  ): Promise<commentReply> {
+  ): Promise<CommentReply> {
     const { commentId } = updateReplyDto;
 
     const userReply = await this.replyModel.findById(id).exec();
@@ -118,7 +118,7 @@ export class ReplyService {
     return updatedCommentReply;
   }
 
-  async findById(id: string): Promise<commentReply> {
+  async findById(id: string): Promise<CommentReply> {
     const isValidId = mongoose.isValidObjectId(id);
     if (!isValidId) {
       throw new BadRequestException('please enter correct id.');
