@@ -49,6 +49,7 @@ export class CommentController {
     @Param('id') id: string,
     @Req() req: any,
   ): Promise<{ message: string }> {
+    console.log("Session User:", req.user);
     if (!req.user || !req.user.userId) {
       throw new UnauthorizedException('User is not authenticated.');
     }
