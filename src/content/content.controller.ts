@@ -66,7 +66,7 @@ export class ContentController {
   async updateContent(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updateContentDto: CreateContentDto,
+    @Body() updateContentDto: Partial<CreateContentDto>,
   ) {
     const existingContent = await this.contentService.findById(id);
     if (!existingContent) {
@@ -74,19 +74,10 @@ export class ContentController {
     }
 
     if (file) {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Invalid file type.');
-        throw new BadRequestException('Invalid file type.');
-      }
-
-      const base64Image = file.buffer.toString('base64');
-      const mimeType = file.mimetype;
-      updateContentDto.postImage = `data:${mimeType};base64,${base64Image}`;
+      updateContentDto.postImage = `/uploads/${file.filename}`;
     }
 
-    // 🔹 ตรวจสอบ `tags`
-    if (updateContentDto.tags && typeof updateContentDto.tags === 'string') {
+    if (typeof updateContentDto.tags === "string") {
       try {
         updateContentDto.tags = JSON.parse(updateContentDto.tags);
       } catch (error) {
@@ -94,26 +85,30 @@ export class ContentController {
       }
     }
 
+    if (!Array.isArray(updateContentDto.tags)) {
+      throw new BadRequestException('Tags must be an array.');
+    }
+
     return this.contentService.updateContent(id, updateContentDto);
   }
 
   @ApiOperation({ summary: 'Get detail content & comment' })
   @ApiOkResponse({ type: [GetContentDto] })
-   @Get(':identifier')
-   async getContent(@Param('identifier') identifier: string) {
-     if (!identifier) {
-       throw new BadRequestException('Identifier parameter is required.');
-     }
- 
-     // ตรวจสอบว่าเป็น ObjectId (24 ตัวอักษรฐาน 16)
-     const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
- 
-     if (isObjectId) {
-       return this.contentService.getById(identifier);
-     } else {
-       return this.contentService.getByTitle(identifier);
-     }
+  @Get(':identifier')
+  async getContent(@Param('identifier') identifier: string) {
+    if (!identifier) {
+      throw new BadRequestException('Identifier parameter is required.');
     }
+
+    // ตรวจสอบว่าเป็น ObjectId (24 ตัวอักษรฐาน 16)
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+
+    if (isObjectId) {
+      return this.contentService.getById(identifier);
+    } else {
+      return this.contentService.getByTitle(identifier);
+    }
+  }
 
   @ApiOperation({ summary: 'Delete content' })
   @ApiOkResponse({ description: 'Delete successfully' })
@@ -140,7 +135,6 @@ export class ContentController {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException('Invalid file type.');
-        throw new BadRequestException('Invalid file type.');
       }
 
       const base64Image = file.buffer.toString('base64');
@@ -163,11 +157,28 @@ export class ContentController {
   async search(@Param('query') query: string) {
     return this.contentService.searchContents(query);
   }
-  
-  
+
+
   @Post('updateViews/:id')
   async updateViews(@Param('id') id: string, @Body('userId') userId: string) {
     return this.contentService.updateViews(id, userId);
   }
 
+  @ApiOperation({ summary: 'Get content by tag' })
+  @ApiOkResponse({ type: [GetContentDto] })
+  @Get('searchByTag')
+  async searchContentByTag(@Query('tag') tag: string) {
+    if (!tag) {
+      throw new BadRequestException('Tag is required');
+    }
+    return this.contentService.findByTag(tag);
+  }
+
+  @Post(':id/like')
+  async toggleLike(
+    @Param('id') postId: string,
+    @Body() body: { userId: string },
+  ): Promise<Content> {
+    return this.contentService.toggleLike(postId, body.userId);
+  }
 }

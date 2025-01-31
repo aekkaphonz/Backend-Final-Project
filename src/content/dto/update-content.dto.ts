@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsArray, } from 'class-validator';
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 export class UpdateContentDto {
@@ -22,4 +22,10 @@ export class UpdateContentDto {
 
   @ApiProperty()
   postImage: string;
+
+  @ApiProperty({ type: [String], required: false }) // ✅ เพิ่ม tags
+    @IsArray()
+    @IsOptional()
+    tags?: string[];
+  
 }

@@ -13,7 +13,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { commentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
+import { CommentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
 
 
 @Injectable()
@@ -24,7 +24,7 @@ export class CommentService {
     @InjectModel(Content.name)
     private readonly contentModel: Model<ContentDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @InjectModel(commentReply.name)
+    @InjectModel(CommentReply.name)
     private readonly replyModel: Model<ReplyDocument>,
   ) {}
 
@@ -86,6 +86,8 @@ export class CommentService {
     if (userComment.userId.toString() !== user.userId.toString()) {
       throw new ForbiddenException('You are not allowed to delete this comment.');
     }
+
+    // await this.replyModel.deleteMany({ _id: { $in: userComment.reply } });
 
     const deletedComment = await this.commentModel.findByIdAndDelete(id).exec();
     if (!deletedComment) {

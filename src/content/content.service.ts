@@ -20,35 +20,84 @@ export class ContentService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PostComment.name)
     private readonly commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
   async create(contentDto: CreateContentDto): Promise<Content> {
     const newContent = new this.contentModel(contentDto);
     console.log(newContent);
     return newContent.save();
   }
-  
+
   async findAll(): Promise<Content[]> {
     return this.contentModel.find().exec();
   }
 
-  async updateContent(
-    id: string,
-    updateContentDto: CreateContentDto,
-  ): Promise<Content> {
-    const content = await this.contentModel.findByIdAndUpdate(
-      id,
-      updateContentDto,
-      {
-        new: true,
-      },
-    );
+  // async createContent(createContentDto: CreateContentDto): Promise<Content> {
+  //   let { userId, title, detail, postImage, tags } = createContentDto;
+
+
+
+  //   const newContent = new this.contentModel({
+  //     userId,
+  //     title,
+  //     detail,
+  //     postImage,
+  //     tags,
+  //   });
+
+  //   return await newContent.save();
+  // }
+
+  async createContent(createContentDto: CreateContentDto): Promise<Content> {
+    let { userId, title, detail, description, postImage, tags } = createContentDto;
+
+    if (!Array.isArray(tags)) {
+      tags = typeof tags === "string" ? [tags] : [];
+    }
+
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const newContent = new this.contentModel({
+      userId,
+      title,
+      detail,
+      description,
+      postImage,
+      tags,
+      userName: user.userName,
+    });
+
+    try {
+      const savedContent = await newContent.save();
+
+      await this.userModel.findByIdAndUpdate(
+        userId,
+        { $push: { content: savedContent._id } },
+        { new: true },
+      );
+
+      return savedContent;
+    } catch (error) {
+      throw new BadRequestException('Failed to create content.');
+    }
+  }
+
+
+  async updateContent(id: string, updateContentDto: Partial<CreateContentDto>) {
+    const content = await this.contentModel.findById(id);
     if (!content) {
       throw new NotFoundException('Content not found');
     }
-
-    return content;
-  }
+  
+    if (updateContentDto.postImage) {
+      content.postImage = updateContentDto.postImage;
+    }
+  
+    return await this.contentModel.findByIdAndUpdate(id, updateContentDto, { new: true });
+  }  
 
   async deleteContentById(id: string): Promise<Content> {
     return await this.contentModel.findByIdAndDelete(id);
@@ -74,36 +123,6 @@ export class ContentService {
     return contentWithComments;
   }
 
-  async createContent(createContentDto: CreateContentDto): Promise<Content> {
-    const { userId, title, detail, description, postImage } = createContentDto;
-
-    const newContent = new this.contentModel({
-      userId,
-      title,
-      detail,
-      description,
-      postImage,
-    });
-
-    try {
-      const savedContent = await newContent.save();
-
-      const user = await this.userModel.findByIdAndUpdate(
-        userId,
-        { $push: { content: savedContent._id } },
-        { new: true },
-      );
-
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
-      return savedContent;
-    } catch (error) {
-      throw new BadRequestException('Failed to create content.');
-    }
-  }
-
   async findById(id: string): Promise<Content> {
     const isValidId = Types.ObjectId.isValid(id);
     if (!isValidId) {
@@ -122,14 +141,14 @@ export class ContentService {
     const contents = await this.contentModel.find({ userId }).exec();
     console.log("✅ Found contents:", contents); // Debug ผลลัพธ์ที่ดึงได้
     return contents;
-  }   
+  }
 
   async searchByTitle(search: string) {
     return this.contentModel.find({ title: new RegExp(search, 'i') }).exec();
   }
-  
-   // 🔍 ค้นหาตาม `_id`
-   async getById(id: string) {
+
+  // 🔍 ค้นหาตาม `_id`
+  async getById(id: string) {
     console.log(`🔍 Searching by ID: ${id}`); // Debugging
     const content = await this.contentModel.findById(id).exec();
     if (!content) {
@@ -154,8 +173,6 @@ export class ContentService {
       $or: [{ title: regex }, { detail: regex }],
     });
   }
-  
-  
   async updateViews(contentId: string, userId: string): Promise<any> {
     const content = await this.contentModel.findById(contentId);
     if (!content) {
@@ -167,4 +184,61 @@ export class ContentService {
     }
     return content;
   }
+
+  async findByTag(tag: string): Promise<Content[]> {
+    const contents = await this.contentModel
+      .find({ tags: tag })  // ค้นหาบทความที่มี tag ตรงกับค่าที่ส่งมา
+      .exec();
+
+    if (contents.length === 0) {
+      throw new NotFoundException(`No content found with the tag ${tag}`);
+    }
+
+    return contents;
+  }
+
+  async toggleLike(postId: string, userId: string): Promise<Content> {
+    const post = await this.contentModel.findById(postId);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const isLiked = post.likedUsers.includes(userId);
+
+    if (isLiked) {
+      // ยกเลิกไลค์
+      post.likedUsers = post.likedUsers.filter((user) => user !== userId);
+      post.likeCount -= 1;
+    } else {
+      // ไลค์ใหม่
+      post.likedUsers.push(userId);
+      post.likeCount += 1;
+    }
+
+    // อัพเดตโพสต์ในฐานข้อมูล
+    await post.save();
+    return post;
+  }
+
+  async updateLike(contentId: string, userId: string): Promise<any> {
+    const content = await this.contentModel.findById(contentId);
+    if (!content) {
+      throw new NotFoundException('Content not found');
+    }
+  
+    // ถ้า userId ยังไม่ได้ไลค์ จะเพิ่มเข้าไปใน likedUsers และเพิ่มจำนวนไลค์
+    if (!content.likedUsers.includes(userId)) {
+      content.likedUsers.push(userId);
+      content.likeCount += 1; // เพิ่มจำนวนไลค์
+    } else {
+      // ถ้า userId เคยไลค์แล้ว ให้ลบออกจาก likedUsers และลดจำนวนไลค์
+      content.likedUsers = content.likedUsers.filter(id => id !== userId);
+      content.likeCount -= 1; // ลดจำนวนไลค์
+    }
+  
+    await content.save();
+    return content; // ส่งกลับข้อมูลโพสต์ที่ถูกอัปเดต
+  }
+  
 }
