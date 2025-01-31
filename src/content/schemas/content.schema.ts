@@ -36,6 +36,12 @@ export class Content {
   @Prop({ default: 0 })
   totalComments: number;
 
+  @Prop({ type: [String], default: [] })
+  likedUsers: string[];
+
+  @Prop({ default: 0 })
+  likeCount: number;
+
 
 }
 
