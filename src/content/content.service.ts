@@ -94,9 +94,13 @@ export class ContentService {
     if (!content) {
       throw new NotFoundException('Content not found');
     }
-
+  
+    if (updateContentDto.postImage) {
+      content.postImage = updateContentDto.postImage;
+    }
+  
     return await this.contentModel.findByIdAndUpdate(id, updateContentDto, { new: true });
-  }
+  }  
 
   async deleteContentById(id: string): Promise<Content> {
     return await this.contentModel.findByIdAndDelete(id);
@@ -198,6 +202,5 @@ export class ContentService {
 
     return contents;
   }
-
 
 }

@@ -72,10 +72,9 @@ export class ContentController {
     }
 
     if (file) {
-      updateContentDto.postImage = `/uploads/${file.filename}`; // ✅ ใช้ path ที่ถูกต้อง
+      updateContentDto.postImage = `/uploads/${file.filename}`;
     }
 
-    // ✅ ตรวจสอบว่า `tags` เป็น `string` ก่อน `JSON.parse()`
     if (typeof updateContentDto.tags === "string") {
       try {
         updateContentDto.tags = JSON.parse(updateContentDto.tags);
@@ -84,7 +83,6 @@ export class ContentController {
       }
     }
 
-    // ✅ ตรวจสอบว่า `tags` เป็น `array`
     if (!Array.isArray(updateContentDto.tags)) {
       throw new BadRequestException('Tags must be an array.');
     }
@@ -175,6 +173,5 @@ export class ContentController {
     }
     return this.contentService.findByTag(tag);
   }
-
 
 }
