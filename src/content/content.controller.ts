@@ -27,6 +27,8 @@ import { GetContentDto } from './dto/get-content.dto';
 import { CreateContentDto } from './dto/create-content.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from 'src/user/user.service';
+import { AuthService } from '../auth/auth.service';  // ตัวอย่างในการตรวจสอบผู้ใช้
+
 
 @Controller('contents')
 export class ContentController {
@@ -156,11 +158,10 @@ export class ContentController {
   async getContentById(@Param('id') id: string): Promise<Content> {
     return this.contentService.findById(id);
   }
-
-  @Get("search")
-  async searchContent(@Query("search") searchQuery: string) {
-    console.log("🔍 Search Query:", searchQuery); // Debug Query
-    return this.contentService.searchContents(searchQuery);
+  
+  @Get('/search/:query')
+  async search(@Param('query') query: string) {
+    return this.contentService.searchContents(query);
   }
   
   

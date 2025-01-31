@@ -10,10 +10,7 @@ import { UpdateContentDto } from './dto/update-content.dto';
 import { Content, ContentDocument } from './schemas/content.schema';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/schemas/user.schema';
-import {
-  CommentDocument,
-  PostComment,
-} from 'src/comment/schemas/comment.schema';
+import {CommentDocument,PostComment,} from 'src/comment/schemas/comment.schema';
 
 @Injectable()
 export class ContentService {
@@ -151,14 +148,13 @@ export class ContentService {
     return content;
   }
 
-  async searchContents(searchQuery: string) {
-    return this.contentModel.find({
-      $or: [
-        { title: { $regex: searchQuery, $options: "i" } },
-        { detail: { $regex: searchQuery, $options: "i" } },
-      ],
+  async searchContents(query: string): Promise<Post[]> {
+    const regex = new RegExp(query.split("").join(".*"), "i"); // สร้าง regex ให้ค้นหาแบบบางส่วน
+    return await this.postModel.find({
+      $or: [{ title: regex }, { detail: regex }],
     });
   }
+  
   
   async updateViews(contentId: string, userId: string): Promise<any> {
     const content = await this.contentModel.findById(contentId);
