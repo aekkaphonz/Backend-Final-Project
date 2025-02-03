@@ -16,7 +16,6 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { GetCommentDto } from './dto/get-comment-dto';
-
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
@@ -42,58 +41,25 @@ export class CommentController {
     }
     return comments;
   }
+  @ApiOperation({ summary: 'Delete comment' })
+  @ApiOkResponse({ description: 'Delete successfully' })
+  @Delete(':id')
+  async deleteComment(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<{ message: string }> {
+    console.log("Session User:", req.user);
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('User is not authenticated.');
+    }
 
-  @ApiOperation({ summary: 'Edit Comment' })
-@Put(':id')
-async updateComment(
-  @Param('id') id: string,
-  @Body() updateCommentDto: UpdateCommentDto,
-  @Req() req: any,
-) {
-  if (!req.user || !req.user.userId) {
-    throw new UnauthorizedException('User is not authenticated.');
+    const deletedComment = await this.commentService.deleteById(id, req.user);
+    if (!deletedComment) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+
+    return { message: 'delete successful' };
   }
-
-  const existingComment = await this.commentService.findById(id);
-  if (!existingComment) {
-    throw new NotFoundException(`Comment with ID ${id} not found`);
-  }
-
-  // ตรวจสอบว่า userId ของคอมเมนต์ตรงกับ userId ของผู้ใช้งาน
-  if (existingComment.userId !== req.user.userId) {
-    throw new UnauthorizedException('You are not authorized to edit this comment');
-  }
-
-  return this.commentService.updateById(id, updateCommentDto, req.user);
-}
-
-@ApiOperation({ summary: 'Delete comment' })
-@Delete(':id')
-async deleteComment(
-  @Param('id') id: string,
-  @Req() req: any,
-): Promise<{ message: string }> {
-  if (!req.user || !req.user.userId) {
-    throw new UnauthorizedException('User is not authenticated.');
-  }
-
-  const existingComment = await this.commentService.findById(id);
-  if (!existingComment) {
-    throw new NotFoundException(`Comment with ID ${id} not found`);
-  }
-
-  // ตรวจสอบว่า userId ของคอมเมนต์ตรงกับ userId ของผู้ใช้งาน
-  if (existingComment.userId !== req.user.userId) {
-    throw new UnauthorizedException('You are not authorized to delete this comment');
-  }
-
-  const deletedComment = await this.commentService.deleteById(id, req.user);
-  if (!deletedComment) {
-    throw new NotFoundException(`Comment with ID ${id} not found`);
-  }
-
-  return { message: 'delete successful' };
-} 
 
   @ApiOperation({ summary: 'Get all content' })
   @ApiOkResponse({ type: [GetCommentDto] })
@@ -107,6 +73,21 @@ async deleteComment(
   @Get(':id')
   async getComment(@Param('id') id: string) {
     return this.commentService.findById(id);
+  }
+
+  @ApiOperation({ summary: 'Edit Comment' })
+  @ApiOkResponse({ type: [GetCommentDto] })
+  @Put(':id')
+  async updateComment(
+    @Param('id') id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: any,
+  ) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('User is not authenticated.');
+    }
+    console.log('Request User:', req.user);
+    return this.commentService.updateById(id, updateCommentDto, req.user);
   }
 
   @Get('CommentWithReply/:id')
