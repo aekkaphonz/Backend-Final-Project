@@ -15,7 +15,6 @@ import { Content, ContentDocument } from 'src/content/schemas/content.schema';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentReply, ReplyDocument } from 'src/reply/schemas/reply.schema';
 
-
 @Injectable()
 export class CommentService {
   constructor(
